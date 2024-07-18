@@ -1,0 +1,94 @@
+<?php
+
+declare(strict_types=1);
+
+/**
+ * @file
+ * Provides an investigation builder entity type.
+ */
+
+use Drupal\Core\Render\Element;
+use Drupal\user\UserInterface;
+
+/**
+ * Implements hook_theme().
+ */
+function investigation_builder_theme(): array {
+  return [
+    'investigation_builder' => ['render element' => 'elements'],
+  ];
+}
+
+/**
+ * Prepares variables for investigation builder templates.
+ *
+ * Default template: investigation-builder.html.twig.
+ *
+ * @param array $variables
+ *   An associative array containing:
+ *   - elements: An associative array containing the investigation builder information and any
+ *     fields attached to the entity.
+ *   - attributes: HTML attributes for the containing element.
+ */
+function template_preprocess_investigation_builder(array &$variables): void {
+  $variables['view_mode'] = $variables['elements']['#view_mode'];
+  foreach (Element::children($variables['elements']) as $key) {
+    $variables['content'][$key] = $variables['elements'][$key];
+  }
+}
+
+/**
+ * Implements hook_user_cancel().
+ */
+function investigation_builder_user_cancel($edit, UserInterface $account, $method): void {
+  switch ($method) {
+    case 'user_cancel_block_unpublish':
+      // Unpublish investigation builders.
+      $storage = \Drupal::entityTypeManager()->getStorage('investigation_builder');
+      $investigation_builder_ids = $storage->getQuery()
+        ->condition('uid', $account->id())
+        ->condition('status', 1)
+        ->accessCheck(FALSE)
+        ->execute();
+      foreach ($storage->loadMultiple($investigation_builder_ids) as $investigation_builder) {
+        $investigation_builder->set('status', FALSE)->save();
+      }
+      break;
+
+    case 'user_cancel_reassign':
+      // Anonymize investigation builders.
+      $storage = \Drupal::entityTypeManager()->getStorage('investigation_builder');
+      $investigation_builder_ids = $storage->getQuery()
+        ->condition('uid', $account->id())
+        ->accessCheck(FALSE)
+        ->execute();
+      foreach ($storage->loadMultiple($investigation_builder_ids) as $investigation_builder) {
+        $investigation_builder->setOwnerId(0)->save();
+      }
+      break;
+  }
+}
+
+/**
+ * Implements hook_ENTITY_TYPE_predelete() for user entities.
+ */
+function investigation_builder_user_predelete(UserInterface $account): void {
+  // Delete investigation builders that belong to this account.
+  $storage = \Drupal::entityTypeManager()->getStorage('investigation_builder');
+  $investigation_builder_ids = $storage->getQuery()
+    ->condition('uid', $account->id())
+    ->accessCheck(FALSE)
+    ->execute();
+  $storage->delete(
+    $storage->loadMultiple($investigation_builder_ids)
+  );
+  // Delete old revisions.
+  $investigation_builder_ids = $storage->getQuery()
+    ->allRevisions()
+    ->condition('uid', $account->id())
+    ->accessCheck(FALSE)
+    ->execute();
+  foreach (array_keys($investigation_builder_ids) as $revision_id) {
+    $storage->deleteRevision($revision_id);
+  }
+}

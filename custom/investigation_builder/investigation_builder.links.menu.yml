@@ -1,0 +1,11 @@
+entity.investigation_builder.settings:
+  title: 'Investigation Builder'
+  description: 'Configure an Investigation Builder entity type.'
+  route_name:  entity.investigation_builder.settings
+  parent: system.admin_structure
+
+entity.investigation_builder.collection:
+  title: 'Investigation Builders'
+  description: 'List of investigation builders.'
+  route_name: entity.investigation_builder.collection
+  parent: system.admin_content

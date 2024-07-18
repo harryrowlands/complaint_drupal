@@ -1,0 +1,12 @@
+entity.investigation_builder.settings:
+  path: 'admin/structure/investigation-builder'
+  defaults:
+    _form: '\Drupal\investigation_builder\Form\InvestigationBuilderSettingsForm'
+    _title: 'Investigation Builder'
+  methods:
+    - GET
+    - POST
+    - PATCH
+    - DELETE
+  requirements:
+    _permission: 'administer investigation_builder'
