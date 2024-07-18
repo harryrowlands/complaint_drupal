@@ -1,0 +1,5 @@
+name: 'Investigation Builder'
+type: module
+description: 'Investigation Builder Class to build investigation'
+package: 'CS321'
+core_version_requirement: ^10
