@@ -1,0 +1,10 @@
+entity.report_builder.edit_form:
+  route_name: entity.report_builder.edit_form
+  group: report_builder
+  title: 'Edit'
+
+entity.report_builder.delete_form:
+  route_name: entity.report_builder.delete_form
+  group: report_builder
+  title: 'Delete'
+  weight: 10

@@ -1,0 +1,17 @@
+administer report_builder:
+  title: 'Administer report builders'
+  restrict access: true
+view report_builder:
+  title: 'View report builder'
+edit report_builder:
+  title: 'Edit report builder'
+delete report_builder:
+  title: 'Delete report builder'
+create report_builder:
+  title: 'Create report builder'
+view report_builder revision:
+  title: 'View report builder revision'
+revert report_builder revision:
+  title: 'Revert report builder revision'
+delete report_builder revision:
+  title: 'Delete report builder revision'

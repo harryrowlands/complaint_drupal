@@ -1,0 +1,5 @@
+name: 'Report builder'
+type: module
+description: 'Builds the complaint handler and genrates a report.'
+package: 'CS321'
+core_version_requirement: ^10
