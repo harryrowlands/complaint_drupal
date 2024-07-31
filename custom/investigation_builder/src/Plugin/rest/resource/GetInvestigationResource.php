@@ -26,7 +26,8 @@ use Symfony\Component\Routing\Route;
  *   uri_paths = {
  *     "canonical" = "/api/get-investigation-resource/{investigationId}",
  *     "create" = "/api/get-investigation-resource/{investigationId}",
- *   "patch" = "/api/update-assessment/{assessmentId}"
+ *   "patch" = "/api/get-investigation-resource/update/{investigationId}",
+ *   "delete" = "/api/get-investigation-resource/{investigationId}"
  *   }
  * )
  *
@@ -92,10 +93,10 @@ final class GetInvestigationResource extends ResourceBase {
   }
 
   /**
-   * Responds to POST requests and saves a new assessment for the investigation.
+   * Responds to POST requests and saves a new step for the investigation.
    *
    * @param array $data
-   *   The data containing information about the new assessment.
+   *   The data containing information about the new step.
    *
    * @return ModifiedResourceResponse
    *   The HTTP response object indicating success or failure of the operation.
@@ -104,42 +105,27 @@ final class GetInvestigationResource extends ResourceBase {
    *   Thrown if the current user does not have permission to access content.
    */
   public function post(array $data): ModifiedResourceResponse {
-    // Check permissions.
+    // check permissions.
     if (!$this->currentUser->hasPermission('access content')) {
       throw new AccessDeniedHttpException();
     }
 
-    // Validate incoming data - Implement your validation logic here.
-
-    // Retrieve the investigation entity.
     $investigation = InvestigationBuilder::load($data['investigationId']);
 
-    // Check if the investigation exists.
+    // check if the investigation exists.
     if (!$investigation) {
       throw new NotFoundHttpException('Investigation not found.');
     }
 
-    // Create a new assessment entity.
-    $assessment = new AssessmentEntity();
-    $assessment->setLabel($data['assessmentLabel']);
-    $assessment->setDescription($data['description']);
-    // Set other fields based on your entity structure.
-
-    // Save the assessment entity.
-    $assessment->save();
-
-    // Optionally, associate the assessment with the investigation.
-    $investigation->addAssessment($assessment);
-    $investigation->save();
+  // have to implement the logic
 
     // Log the operation.
-    $this->logger->notice('Created new assessment @id for investigation @investigationId.', [
-      '@id' => $assessment->id(),
+    $this->logger->notice('Created new step for investigation @investigationId.', [
       '@investigationId' => $investigation->id(),
     ]);
 
     // Return the response indicating success.
-    return new ModifiedResourceResponse($assessment->toArray(), 201);
+    return new ModifiedResourceResponse($investigation->toArray(), 201);
   }
 
   /**
@@ -151,81 +137,93 @@ final class GetInvestigationResource extends ResourceBase {
    */
   public function get($investigationId): JsonResponse
   {
-    // You must to implement the logic of your REST Resource here.
-    // Use current user after pass authentication to validate access.
+
     if (!$this->currentUser->hasPermission('access content')) {
       throw new AccessDeniedHttpException();
     }
-//    if (!$this->storage->has(investigationId)) {
-//      throw new NotFoundHttpException();
-//    }
-//    $resource = $this->storage->get($id);
-//    return new ResourceResponse($resource);
+
     $investigation = InvestigationBuilder::load($investigationId);
     $returnValue = $investigation->getJsonString();
 
     return new JsonResponse($returnValue, 200, [], true);
   }
   /**
-   * Responds to PATCH requests to update an assessment.
+   * Responds to PATCH requests to update an step.
    *
-   * @param string $assessmentId
-   *   The ID of the assessment to update.
+   * @param string $investigationId
+   *   The ID of the step to update.
    * @param array $data
-   *   The updated data for the assessment.
+   *   The updated data for the step.
    *
    * @return ModifiedResourceResponse
    *   The HTTP response object indicating success or failure of the operation.
    *
    * @throws NotFoundHttpException
-   *   Thrown if the assessment with the provided ID is not found.
+   *   Thrown if the step with the provided ID is not found.
    * @throws AccessDeniedHttpException
-   *   Thrown if the current user does not have permission to update assessments.
+   *   Thrown if the current user does not have permission to update steps.
    */
-  public function patch($assessmentId, array $data): ModifiedResourceResponse {
+  public function patch($investigationId, array $data): ModifiedResourceResponse {
     // Check permissions.
-    if (!$this->currentUser->hasPermission('administer assessments')) {
+    if (!$this->currentUser->hasPermission('access content')) {
       throw new AccessDeniedHttpException();
     }
+    $investigation = InvestigationBuilder::load($investigationId);
 
-    // Load the assessment entity.
-    $assessment = AssessmentEntity::load($assessmentId);
-
-    // Check if the assessment exists.
-    if (!$assessment) {
-      throw new NotFoundHttpException('Assessment not found.');
+    if (!$investigation) {
+      throw new NotFoundHttpException('Investigation not found.');
     }
 
-    // Update the assessment fields based on incoming data.
-    if (isset($data['assessmentLabel'])) {
-      $assessment->setLabel($data['assessmentLabel']);
-    }
-    if (isset($data['description'])) {
-      $assessment->setDescription($data['description']);
-    }
-    // Add more fields as needed.
 
-    // Save the updated assessment entity.
-    $assessment->save();
+    $jsonString = $investigation->getJsonString();
+    //$data = json_decode($jsonString, true);
 
-    // Log the operation.
-    $this->logger->notice('Updated assessment @id.', ['@id' => $assessment->id()]);
+    $investigation->setJsonString($jsonString);
+    $investigation->save();
 
-    // Return the response indicating success.
-    return new ModifiedResourceResponse($assessment->toArray(), 200);
+    $this->logger->notice('Added new step  to Investigation with ID @id.', [
+      '@id' => $investigationId
+
+    ]);
+
+// Return the response indicating success.
+    return new ModifiedResourceResponse($investigation->toArray(), 200);
   }
   /**
    * Responds to DELETE requests.
    */
-  public function delete($id): ModifiedResourceResponse {
-    if (!$this->storage->has($id)) {
-      throw new NotFoundHttpException();
+  public function delete($investigationId): ModifiedResourceResponse {
+    // Check permissions.
+    if (!$this->currentUser->hasPermission('delete investigation')) {
+      throw new AccessDeniedHttpException();
     }
-    $this->storage->delete($id);
-    $this->logger->notice('The get investigation resource record @id has been deleted.', ['@id' => $id]);
-    // Deleted responses have an empty body.
-    return new ModifiedResourceResponse(NULL, 204);
+
+    // load the investigation entity.
+    $investigation = InvestigationBuilder::load($investigationId);
+
+    // check if the investigation exists.
+    if (!$investigation) {
+      throw new NotFoundHttpException(sprintf('Investigation with ID %s was not found.', $investigationId));
+    }
+
+    try {
+      // Perform deletion.
+      $investigation->delete();
+      $this->logger->notice('Deleted Investigation entity with ID @id.', ['@id' => $investigationId]);
+
+      //return response indicating successful deletion.
+      return new ModifiedResourceResponse(NULL, 204);
+    } catch (\Exception $e) {
+      // log any errors that occur during deletion.
+      $this->logger->error('An error occurred while deleting Investigation entity with ID @id: @message', [
+        '@id' => $investigationId,
+        '@message' => $e->getMessage(),
+      ]);
+      // Throw HTTP exception to indicate failure.
+      throw new HttpException(500, 'Internal Server Error');
+    }
   }
+
 
   /**
    * {@inheritdoc}
