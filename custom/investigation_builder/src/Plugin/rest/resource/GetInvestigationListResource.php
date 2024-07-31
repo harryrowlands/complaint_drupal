@@ -8,6 +8,7 @@ use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\Core\KeyValueStore\KeyValueStoreInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\investigation_builder\Entity\InvestigationBuilder;
+use Drupal\investigation_builder\Services\InvestigationBuilderService\InvestigationBuilderService;
 use Drupal\rest\ModifiedResourceResponse;
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
@@ -24,7 +25,8 @@ use Symfony\Component\Routing\Route;
  *   label = @Translation("Get Investigation List"),
  *   uri_paths = {
  *     "canonical" = "/rest/investigation/list",
- *     "create" = "/rest/investigation/list"
+ *     "create" = "/rest/investigation/list/add",
+ *	   "delete" = "/rest/investigation/list/delete/{investigationId}"
  *   }
  * )
  *
@@ -58,6 +60,11 @@ final class GetInvestigationListResource extends ResourceBase {
   private readonly KeyValueStoreInterface $storage;
 
   /**
+   * The investigation builder service.
+   */
+  protected InvestigationBuilderService $investigationBuilderService;
+
+  /**
    * {@inheritdoc}
    */
   public function __construct(
@@ -68,10 +75,12 @@ final class GetInvestigationListResource extends ResourceBase {
     LoggerInterface $logger,
     KeyValueFactoryInterface $keyValueFactory,
     AccountProxyInterface $currentUser,
+    InvestigationBuilderService $investigation_builder_service
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $serializer_formats, $logger);
     $this->storage = $keyValueFactory->get('get_investigation_list_resource');
     $this->currentUser = $currentUser;
+    $this->investigationBuilderService = $investigation_builder_service;
   }
 
   /**
@@ -85,7 +94,8 @@ final class GetInvestigationListResource extends ResourceBase {
       $container->getParameter('serializer.formats'),
       $container->get('logger.factory')->get('rest'),
       $container->get('keyvalue'),
-      $container->get('current_user')
+      $container->get('current_user'),
+      $container->get('investigation_builder.service')
     );
   }
 
@@ -99,6 +109,10 @@ final class GetInvestigationListResource extends ResourceBase {
     }
 
     try {
+
+      //    $term_name = $data['revision_status'];  //have to fix this
+      //      $term = $this->setRevisionStatus($term_name);
+
       // create a new instance of the entity.
       $entity = InvestigationBuilder::create($data);
       $entity->save();
@@ -124,31 +138,18 @@ final class GetInvestigationListResource extends ResourceBase {
    */
   public function get()
   {
-
-    // You must to implement the logic of your REST Resource here.
     // Use current user after pass authentication to validate access.
     if (!$this->currentUser->hasPermission('access content')) {
       throw new AccessDeniedHttpException();
     }
 
-    $unformattedInvestigations = InvestigationBuilder::loadMultiple();
-    $investigationList = array();
-    foreach ($unformattedInvestigations as $unformattedInvestigation) {
-      if ($unformattedInvestigation instanceof InvestigationBuilder) {
-        $investigation_builder['label'] = $unformattedInvestigation->getName();
-        $investigation_builder['entityId'] = $unformattedInvestigation->id();
-        $investigation_builder['revisionId'] = $unformattedInvestigation->getRevisionId();
-        $investigation_builder['revisionCreationTime'] = $unformattedInvestigation->getRevisionCreationTime();
-        $investigation_builder['revisionStatus'] = $unformattedInvestigation->getRevisionStatus();
-
-        $investigationList[] = $investigation_builder;
-        unset($investigation_builder);
-      }
+    try {
+      $response = $this->investigationBuilderService->loadInvestigationBuilderList();
+      return new ResourceResponse($response, 200);
+    } catch (\Exception $e) {
+      $this->logger->error('An error occurred while loading InvestigationBuilder list: @message', ['@message' => $e->getMessage()]);
+      throw new HttpException(500, 'Internal Server Error');
     }
-
-    $response = new ResourceResponse($investigationList);
-    $response->addCacheableDependency($this->currentUser);
-    return $response;
   }
 
   /**
@@ -167,17 +168,40 @@ final class GetInvestigationListResource extends ResourceBase {
 
   /**
    * Responds to DELETE requests.
+   *
+   * @param string $investigationId
+   *   The ID of the investigation entity to delete.
+   *
+   * @return \Drupal\rest\ModifiedResourceResponse
+   *   The HTTP response object.
+   *
+   * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+   *   Thrown when the specified entity does not exist.
    */
-  public function delete($id): ModifiedResourceResponse {
-    if (!$this->storage->has($id)) {
-      throw new NotFoundHttpException();
-    }
-    $this->storage->delete($id);
-    $this->logger->notice('The get_investigation_list record @id has been deleted.', ['@id' => $id]);
-    // Deleted responses have an empty body.
-    return new ModifiedResourceResponse(NULL, 204);
-  }
+  public function delete($investigationId): ModifiedResourceResponse {
 
+    if (!$this->currentUser->hasPermission('access content')) {
+      throw new AccessDeniedHttpException();
+    }
+
+    $investigation = InvestigationBuilder::load($investigationId);
+    if (!$investigation) {
+      throw new NotFoundHttpException(sprintf('Investigation with ID %s was not found.', $investigationId));
+    }
+
+    try {
+      $investigation->delete();
+      $this->logger->notice('Deleted Investigation entity with ID @id.', ['@id' => $investigationId]);
+
+      return new ModifiedResourceResponse(NULL, 204);
+    } catch (\Exception $e) {
+      $this->logger->error('An error occurred while deleting Investigation entity with ID @id: @message', [
+        '@id' => $investigationId,
+        '@message' => $e->getMessage(),
+      ]);
+      throw new HttpException(500, 'Internal Server Error');
+    }
+  }
   /**
    * {@inheritdoc}
    */
@@ -185,7 +209,7 @@ final class GetInvestigationListResource extends ResourceBase {
     $route = parent::getBaseRoute($canonical_path, $method);
     // Set ID validation pattern.
     if ($method !== 'POST') {
-      $route->setRequirement('id', '\d+');
+      $route->setRequirement('investigationId', '\d+');
     }
     return $route;
   }

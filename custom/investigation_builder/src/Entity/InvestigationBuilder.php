@@ -12,6 +12,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\investigation_builder\InvestigationBuilderInterface;
 use Drupal\taxonomy\Entity\Term;
 use Drupal\user\EntityOwnerTrait;
+use Drupal\Core\Datetime\DateFormatterInterface;
 
 /**
  * Defines the investigation builder entity class.
@@ -353,7 +354,12 @@ final class InvestigationBuilder extends RevisionableContentEntityBase implement
    */
   public function getCreatedTime()
   {
-    return $this->get('created')->value;
+    $timestamp = $this->get('created')->value;
+    $date_formatter = \Drupal::service('date.formatter');
+
+    // format the timestamp to a  date/time
+    $formatted_date = $date_formatter->format($timestamp);
+    return $formatted_date;
   }
 
   /**
