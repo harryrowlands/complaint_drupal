@@ -101,11 +101,18 @@ final class CreateReportBuilderResource extends ResourceBase {
    * Responds to POST requests and saves the new record.
    */
   public function post(array $data): ModifiedResourceResponse {
-    $data['id'] = $this->getNextId();
-    $this->storage->set($data['id'], $data);
-    $this->logger->notice('Created new create_report_builder record @id.', ['@id' => $data['id']]);
-    // Return the newly created record in the response body.
-    return new ModifiedResourceResponse($data, 201);
+    try {
+      // create a new instance of the entity.
+      $entity = ReportBuilder::create($data);
+      $entity->save();
+      // log the creation of the entity.
+      $this->logger->notice('Created new report entity with ID @id.', ['@id' => $entity->id()]);
+      return new ModifiedResourceResponse($entity, 201);
+    } catch (\Exception $e) {
+      // handle any exceptions that occur during entity creation.
+      $this->logger->error('An error occurred while creating report entity: @message', ['@message' => $e->getMessage()]);
+      throw new HttpException(500, 'Internal Server Error');
+    }
   }
 
 }
