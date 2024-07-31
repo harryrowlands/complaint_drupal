@@ -1,0 +1,11 @@
+entity.report_builder.settings:
+  title: 'Report builder'
+  description: 'Configure a Report builder entity type.'
+  route_name:  entity.report_builder.settings
+  parent: system.admin_structure
+
+entity.report_builder.collection:
+  title: 'Report builders'
+  description: 'List of report builders.'
+  route_name: entity.report_builder.collection
+  parent: system.admin_content
