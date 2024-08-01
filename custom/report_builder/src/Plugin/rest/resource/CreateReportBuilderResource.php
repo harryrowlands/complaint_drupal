@@ -103,14 +103,23 @@ final class CreateReportBuilderResource extends ResourceBase {
   public function post(array $data): ModifiedResourceResponse {
     try {
       // create a new instance of the entity.
-      $entity = ReportBuilder::create($data);
-      $entity->save();
+      $report = ReportBuilder::create($data);
+      $entityid = $report->save();
+      $returnValue['entityId'] = $report->id();
+      $jsonstring = [
+        'entityId' =>$report->id(),
+        'reportLabel' =>$report->label(),
+        'investigationId' =>$data['investigation_id']
+      ];
+      $reportJsonString = json_encode($jsonstring);
+      $report->setJsonString($reportJsonString);
+      $entityid = $report->save();
       // log the creation of the entity.
-      $this->logger->notice('Created new report entity with ID @id.', ['@id' => $entity->id()]);
-      return new ModifiedResourceResponse($entity, 201);
+      $this->logger->notice('Created new report entity with ID @id.', ['@id' => $entityid]);
+      return new ModifiedResourceResponse($report, 201);
     } catch (\Exception $e) {
       // handle any exceptions that occur during entity creation.
-      $this->logger->error('An error occurred while creating report entity: @message', ['@message' => $e->getMessage()]);
+      $this->logger->error('An error occurred while creating rport entity: @message', ['@message' => $e->getMessage()]);
       throw new HttpException(500, 'Internal Server Error');
     }
   }

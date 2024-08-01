@@ -311,7 +311,7 @@ final class InvestigationBuilder extends RevisionableContentEntityBase implement
    */
   public function getJsonString(): string
   {
-    return $this->get('json_string')->value;
+    return $this->get('json_string')->value ?? '';
   }
 
   /**
