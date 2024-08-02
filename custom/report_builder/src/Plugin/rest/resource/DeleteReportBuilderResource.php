@@ -6,25 +6,23 @@ namespace Drupal\report_builder\Plugin\rest\resource;
 
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\Core\KeyValueStore\KeyValueStoreInterface;
-use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\rest\ModifiedResourceResponse;
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
-use Drupal\report_builder\Entity\ReportBuilder;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Route;
 
 /**
- * Represents create_report_builder records as resources.
+ * Represents delete_report_builder records as resources.
  *
  * @RestResource (
- *   id = "create_report_builder_resource",
- *   label = @Translation("create_report_builder"),
+ *   id = "delete_report_builder_resource",
+ *   label = @Translation("delete_report_builder"),
  *   uri_paths = {
- *     "canonical" = "/rest/report/create",
- *     "create" = "/rest/report/create"
+ *     "canonical" = "/rest/report/delete/{id}",
+ *     "create" = "/rest/report/delete/{id}"
  *   }
  * )
  *
@@ -50,7 +48,8 @@ use Symfony\Component\Routing\Route;
  * Drupal core.
  * @see \Drupal\rest\Plugin\rest\resource\EntityResource
  */
-final class CreateReportBuilderResource extends ResourceBase {
+
+ final class DeleteReportBuilderResource extends ResourceBase {
 
   /**
    * The key-value storage.
@@ -67,11 +66,9 @@ final class CreateReportBuilderResource extends ResourceBase {
     array $serializer_formats,
     LoggerInterface $logger,
     KeyValueFactoryInterface $keyValueFactory,
-    AccountProxyInterface $currentUser,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $serializer_formats, $logger);
-    $this->storage = $keyValueFactory->get('create_report_builder_resource');
-    $this->currentUser = $currentUser;
+    $this->storage = $keyValueFactory->get('delete_report_builder_resource');
   }
 
   /**
@@ -84,44 +81,20 @@ final class CreateReportBuilderResource extends ResourceBase {
       $plugin_definition,
       $container->getParameter('serializer.formats'),
       $container->get('logger.factory')->get('rest'),
-      $container->get('keyvalue'),
-      $container->get('current_user')
+      $container->get('keyvalue')
     );
   }
 
   /**
-   * Returns next available ID.
+   * Responds to DELETE requests.
    */
-  private function getNextId(): int {
-    $ids = \array_keys($this->storage->getAll());
-    return count($ids) > 0 ? max($ids) + 1 : 1;
-  }
-  
-  /**
-   * Responds to POST requests and saves the new record.
-   */
-  public function post(array $data): ModifiedResourceResponse {
-    try {
-      // create a new instance of the entity.
-      $report = ReportBuilder::create($data);
-      $entityid = $report->save();
-      $returnValue['entityId'] = $report->id();
-      $jsonstring = [
-        'entityId' =>$report->id(),
-        'reportLabel' =>$report->label(),
-        'investigationId' =>$data['investigation_id']
-      ];
-      $reportJsonString = json_encode($jsonstring);
-      $report->setJsonString($reportJsonString);
-      $entityid = $report->save();
-      // log the creation of the entity.
-      $this->logger->notice('Created new report entity with ID @id.', ['@id' => $entityid]);
-      return new ModifiedResourceResponse($report, 201);
-    } catch (\Exception $e) {
-      // handle any exceptions that occur during entity creation.
-      $this->logger->error('An error occurred while creating rport entity: @message', ['@message' => $e->getMessage()]);
-      throw new HttpException(500, 'Internal Server Error');
+  public function delete($id): ModifiedResourceResponse {
+    if (!$this->storage->has($id)) {
+      throw new NotFoundHttpException();
     }
+    $this->storage->delete($id);
+    $this->logger->notice('The delete_report_builder record @id has been deleted.', ['@id' => $id]);
+    // Deleted responses have an empty body.
+    return new ModifiedResourceResponse(NULL, 204);
   }
-
 }

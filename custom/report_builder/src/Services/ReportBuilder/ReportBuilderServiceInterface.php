@@ -12,6 +12,6 @@ interface ReportBuilderServiceInterface {
   /**
    * @todo Add method description.
    */
-  public function doSomething(): void;
-
+  public function createReport(): void;
+  
 }
