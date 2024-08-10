@@ -5,13 +5,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6eb18b6f-ce86-4c11-a1f1-1f12ed159ec1" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/custom/investigation_builder/investigation_builder.services.yml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom/investigation_builder/src/Services/InvestigationBuilderService/InvestigationBuilderService.php" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/custom/investigation_builder/src/Services/InvestigationBuilderService/InvestigationBuilderServiceInterface.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/custom/investigation_builder/src/Entity/InvestigationBuilder.php" beforeDir="false" afterPath="$PROJECT_DIR$/custom/investigation_builder/src/Entity/InvestigationBuilder.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom/investigation_builder/investigation_builder.services.yml" beforeDir="false" afterPath="$PROJECT_DIR$/custom/investigation_builder/investigation_builder.services.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/custom/investigation_builder/src/Plugin/rest/resource/GetInvestigationListResource.php" beforeDir="false" afterPath="$PROJECT_DIR$/custom/investigation_builder/src/Plugin/rest/resource/GetInvestigationListResource.php" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/custom/investigation_builder/src/Plugin/rest/resource/GetInvestigationResource.php" beforeDir="false" afterPath="$PROJECT_DIR$/custom/investigation_builder/src/Plugin/rest/resource/GetInvestigationResource.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom/investigation_builder/src/Services/InvestigationBuilderService/InvestigationBuilderService.php" beforeDir="false" afterPath="$PROJECT_DIR$/custom/investigation_builder/src/Services/InvestigationBuilderService/InvestigationBuilderService.php" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/custom/investigation_builder/src/Services/InvestigationBuilderService/InvestigationBuilderServiceInterface.php" beforeDir="false" afterPath="$PROJECT_DIR$/custom/investigation_builder/src/Services/InvestigationBuilderService/InvestigationBuilderServiceInterface.php" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -290,6 +289,12 @@
       <workItem from="1721712885008" duration="6521000" />
       <workItem from="1721792566384" duration="3822000" />
       <workItem from="1721916356198" duration="11736000" />
+      <workItem from="1722852170524" duration="6253000" />
+      <workItem from="1722944943821" duration="818000" />
+      <workItem from="1723109389558" duration="7425000" />
+      <workItem from="1723168289571" duration="25587000" />
+      <workItem from="1723253771640" duration="10879000" />
+      <workItem from="1723289546466" duration="4649000" />
     </task>
     <servers />
   </component>

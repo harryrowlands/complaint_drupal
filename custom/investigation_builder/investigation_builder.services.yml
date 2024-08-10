@@ -2,3 +2,7 @@ services:
   investigation_builder.service:
     class: Drupal\investigation_builder\Services\InvestigationBuilderService\InvestigationBuilderService
     arguments: ['@entity_type.manager', '@logger.channel.default']
+
+  investigation_step_builder.service:
+    class: Drupal\investigation_builder\Services\InvestigationStepBuilderService\InvestigationStepBuilderService
+    arguments: ['@entity_type.manager']
