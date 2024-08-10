@@ -50,8 +50,6 @@ final class InvestigationBuilderService implements InvestigationBuilderServiceIn
         $investigation_builder['revisionCreationTime'] = $unformattedInvestigation->getRevisionCreationTime();
         $investigation_builder['createdTime'] = $unformattedInvestigation->getCreatedTime();
         $investigation_builder['revisionStatus'] = $unformattedInvestigation->getRevisionStatus();
-
-
         $investigation_builder['json_string'] = $unformattedInvestigation->getJsonString();
 
         $investigationList[] = $investigation_builder;
@@ -68,7 +66,6 @@ final class InvestigationBuilderService implements InvestigationBuilderServiceIn
 
     $entityId = $investigation->save();
     $returnValue['entityId'] = $investigation->id();
-
     $jsonstring = [
       'entityId' =>$investigation->id(),
       'uuid'=>uniqid(),

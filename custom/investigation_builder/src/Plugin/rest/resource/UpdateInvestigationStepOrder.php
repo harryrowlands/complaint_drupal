@@ -97,7 +97,7 @@ final class UpdateInvestigationStepOrder extends ResourceBase {
     if (!$this->currentUser->hasPermission('access content')) {
       throw new AccessDeniedHttpException();
     }
-    $entity = $this->investigationStepBuilderService->updateInvestigationStepPositions($investigationId, $data);
+    $entity = $this->investigationStepBuilderService->updateInvestigationStepOrder($investigationId, $data);
 
     $this->logger->notice('Reorder Investigation steps');
     return new ModifiedResourceResponse($entity, 200);

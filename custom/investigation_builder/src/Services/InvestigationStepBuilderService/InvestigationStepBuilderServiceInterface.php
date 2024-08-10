@@ -18,7 +18,7 @@ interface InvestigationStepBuilderServiceInterface {
 
   public function updateInvestigationStep($investigationId, $stepId, array $stepData);
 
-  public function updateInvestigationStepPositions($investigationId, array $stepsData);
+  public function updateInvestigationStepOrder($investigationId, array $stepsData);
 
   public function deleteInvestigationStep($investigationId, $stepId);
 

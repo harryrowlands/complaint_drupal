@@ -33,14 +33,9 @@ final class InvestigationStepBuilderService implements InvestigationStepBuilderS
 
    $investigationJsonString = $investigation->getJsonString();
    $investigationData = json_decode($investigationJsonString, true);
-
-
-
    $investigationData['steps'][] = $newStepData;
    $updatedJsonString = json_encode($investigationData);
    $investigation->setJsonString($updatedJsonString);
-
-
    $entity=$investigation->save();
 
    return $entity;
@@ -52,7 +47,6 @@ final class InvestigationStepBuilderService implements InvestigationStepBuilderS
    if (!$investigation) {
      throw new NotFoundHttpException();
    }
-
    $investigationJsonString = $investigation->getJsonString();
    $investigationData = json_decode($investigationJsonString, true);
 
@@ -62,14 +56,13 @@ final class InvestigationStepBuilderService implements InvestigationStepBuilderS
        break;
      }
    }
-
    $updatedJsonString = json_encode($investigationData);
    $investigation->setJsonString($updatedJsonString);
    $entity = $investigation ->save();
 
    return $entity;
  }
- public function updateInvestigationStepPositions($investigationId, $stepsData){
+ public function updateInvestigationStepOrder($investigationId, $stepsData){
    $investigation = InvestigationBuilder::load($investigationId);
 
    if (!$investigation) {
@@ -81,7 +74,6 @@ final class InvestigationStepBuilderService implements InvestigationStepBuilderS
    $investigationData['steps'] = $stepsData;
    $updatedJsonString = json_encode($investigationData);
    $investigation->setJsonString($updatedJsonString);
-
    $entity=$investigation->save();
 
    return $entity;
@@ -96,7 +88,6 @@ final class InvestigationStepBuilderService implements InvestigationStepBuilderS
 
    $investigationJsonString = $investigation->getJsonString();
    $investigationData = json_decode($investigationJsonString, true);
-
    $investigationData['steps'] = array_filter($investigationData['steps'], function($step) use($stepUuid){
      return $step['stepUuid'] !== $stepUuid;
    });
