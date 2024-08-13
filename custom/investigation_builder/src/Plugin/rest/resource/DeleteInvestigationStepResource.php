@@ -6,28 +6,27 @@ namespace Drupal\investigation_builder\Plugin\rest\resource;
 
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\Core\KeyValueStore\KeyValueStoreInterface;
-use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\investigation_builder\Entity\InvestigationBuilder;
+use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\investigation_builder\Services\InvestigationStepBuilderService\InvestigationStepBuilderService;
 use Drupal\rest\ModifiedResourceResponse;
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Route;
 
 /**
- * Represents Get Investigation Resource records as resources.
+ * Represents delete_investigation_step records as resources.
  *
  * @RestResource (
- *   id = "get_investigation_resource",
- *   label = @Translation("Get Investigation Resource"),
+ *   id = "delete_investigation_step_resource",
+ *   label = @Translation("Delete Investigation Step resource"),
  *   uri_paths = {
- *     "canonical" = "/api/get-investigation-resource/{investigationId}",
- *     "create" = "/api/get-investigation-resource/{investigationId}",
- *   "patch" = "/api/get-investigation-resource/update/{investigationId}",
- *   "delete" = "/api/get-investigation-resource/{investigationId}"
+ *     "canonical" = "/api/delete-investigation-step-resource/{investigationId}/step/{stepUuid}",
+ *     "patch" = "/api/delete-investigation-step-resource/{investigationId}/step/{stepUuid}"
  *   }
  * )
  *
@@ -53,7 +52,7 @@ use Symfony\Component\Routing\Route;
  * Drupal core.
  * @see \Drupal\rest\Plugin\rest\resource\EntityResource
  */
-final class GetInvestigationResource extends ResourceBase {
+final class DeleteInvestigationStepResource extends ResourceBase {
 
   /**
    * The key-value storage.
@@ -71,10 +70,13 @@ final class GetInvestigationResource extends ResourceBase {
     LoggerInterface $logger,
     KeyValueFactoryInterface $keyValueFactory,
     AccountProxyInterface $currentUser,
+    InvestigationStepBuilderService $investigation_step_builder_service
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $serializer_formats, $logger);
-    $this->storage = $keyValueFactory->get('get_investigation_resource');
+    $this->storage = $keyValueFactory->get('delete_investigation_step_resource');
     $this->currentUser = $currentUser;
+    $this->investigationStepBuilderService = $investigation_step_builder_service;
+
   }
 
   /**
@@ -88,30 +90,22 @@ final class GetInvestigationResource extends ResourceBase {
       $container->getParameter('serializer.formats'),
       $container->get('logger.factory')->get('rest'),
       $container->get('keyvalue'),
-      $container->get('current_user')
+      $container->get('current_user'),
+      $container->get('investigation_step_builder.service')
+
     );
   }
-
-
-
-  /**
-   * Responds to GET requests.
-   *
-   * @param string $investigationId
-   *
-   *
-   */
-  public function get($investigationId): JsonResponse
-  {
+  public function patch($investigationId, $stepUuid):ModifiedResourceResponse{
 
     if (!$this->currentUser->hasPermission('access content')) {
       throw new AccessDeniedHttpException();
     }
+    $entity = $this->investigationStepBuilderService->deleteInvestigationStep($investigationId, $stepUuid);
 
-    $investigation = InvestigationBuilder::load($investigationId);
-    $returnValue = $investigation->getJsonString();
-
-    return new JsonResponse($returnValue, 200, [], true);
+    $this->logger->notice('Deleted step from investigation @id.', ['@id' => $stepUuid]);
+    return new ModifiedResourceResponse($entity, 200);
   }
+
+
 
 }

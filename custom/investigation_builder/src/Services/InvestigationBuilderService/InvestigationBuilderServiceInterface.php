@@ -12,6 +12,14 @@ use Drupal\investigation_builder\Entity\InvestigationBuilder;
 interface InvestigationBuilderServiceInterface {
 
   /**
+   * Loads an InvestigationBuilder entity.
+   *
+   * @return InvestigationBuilder|null
+   *   The InvestigationBuilder entity, or NULL if not found.
+   */
+  public function getInvestigationList();
+
+  /**
    * Creates a new InvestigationBuilder entity.
    *
    * @param array $data
@@ -23,11 +31,42 @@ interface InvestigationBuilderServiceInterface {
   public function createInvestigation(array $data);
 
   /**
-   * Loads an InvestigationBuilder entity.
+   * Duplicates a new InvestigationBuilder entity.
    *
-   * @return InvestigationBuilder|null
-   *   The InvestigationBuilder entity, or NULL if not found.
+   * @param array $data
+   *   The data for the new entity.
+   *
+   * @return InvestigationBuilder
+   *   The duplicated InvestigationBuilder entity.
    */
-  public function loadInvestigationBuilderList();
+  public function duplicateInvestigation(array $data);
+
+
+  /**
+   * Duplicates a new InvestigationBuilder entity.
+   *
+   * @param array $data
+   *   The data for the new entity.
+   *
+   * @param $investigationId
+   *   The id of the existing entity.
+   *
+   * @return InvestigationBuilder
+   *   The duplicated InvestigationBuilder entity.
+   */
+
+  public function updateInvestigation($investigationId, array $data);
+
+  /**
+   * Delete a existing InvestigationBuilder entity.
+   *
+   * @param $investigationId
+   *   The id of the existing entity.
+   */
+  public function deleteInvestigation($investigationId);
+
+
+
+
 
 }
