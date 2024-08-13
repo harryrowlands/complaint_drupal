@@ -49,6 +49,7 @@ final class InvestigationBuilderService implements InvestigationBuilderServiceIn
         $investigation_builder['revisionId'] = $unformattedInvestigation->getRevisionId();
         $investigation_builder['revisionCreationTime'] = $unformattedInvestigation->getRevisionCreationTime();
         $investigation_builder['createdTime'] = $unformattedInvestigation->getCreatedTime();
+        $investigation_builder['updatedTime'] = $unformattedInvestigation->getupdatedTime();
         $investigation_builder['revisionStatus'] = $unformattedInvestigation->getRevisionStatus();
         $investigation_builder['json_string'] = $unformattedInvestigation->getJsonString();
 
@@ -133,6 +134,8 @@ final class InvestigationBuilderService implements InvestigationBuilderServiceIn
     $this->logger->notice('Deleted Investigation entity with ID @id.', ['@id' => $investigationId]);
 
   }
+
+  
 
 
 
