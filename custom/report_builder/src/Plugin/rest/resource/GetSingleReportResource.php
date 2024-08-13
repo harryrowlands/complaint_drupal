@@ -6,23 +6,26 @@ namespace Drupal\report_builder\Plugin\rest\resource;
 
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\Core\KeyValueStore\KeyValueStoreInterface;
+use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\rest\ModifiedResourceResponse;
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Route;
 
+
 /**
- * Represents delete_report_builder records as resources.
+ * Represents Get Single Report records as resources.
  *
  * @RestResource (
- *   id = "delete_report_builder_resource",
- *   label = @Translation("delete_report_builder"),
+ *   id = "get_single_report_resource",
+ *   label = @Translation("Get Single Report"),
  *   uri_paths = {
- *     "canonical" = "/rest/report/delete/{id}",
- *     "create" = "/rest/report/delete/{id}"
+ *     "canonical" = "/rest/report/list/{id}",
+ *     "create" = "/rest/report/list"
  *   }
  * )
  *
@@ -48,8 +51,7 @@ use Symfony\Component\Routing\Route;
  * Drupal core.
  * @see \Drupal\rest\Plugin\rest\resource\EntityResource
  */
-
- final class DeleteReportBuilderResource extends ResourceBase {
+final class GetSingleReportResource extends ResourceBase {
 
   /**
    * The key-value storage.
@@ -66,45 +68,37 @@ use Symfony\Component\Routing\Route;
     array $serializer_formats,
     LoggerInterface $logger,
     KeyValueFactoryInterface $keyValueFactory,
+    AccountProxyInterface $currentUser
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $serializer_formats, $logger);
-    $this->storage = $keyValueFactory->get('delete_report_builder_resource');
+    $this->storage = $keyValueFactory->get('get_single_report_resource');
+    $this->currentUser = $currentUser;
   }
 
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): self {
-    return new self(
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
+    return new static(
       $configuration,
       $plugin_id,
       $plugin_definition,
       $container->getParameter('serializer.formats'),
-      $container->get('logger.factory')->get('rest'),
-      $container->get('keyvalue')
+      $container->get('logger.factory')->get('get_single_report_resource'),
+      $container->get('keyvalue'),
+      $container->get('current_user')
     );
   }
 
   /**
-   * Responds to DELETE requests.
+   * Responds to GET requests.
    */
-  public function delete($id): ModifiedResourceResponse {
-    // load the report entity with that id.
-    $entity = \Drupal::entityTypeManager()->getStorage('report_builder')->load($id);
-    
-    $this->logger->info('Attempting to delete record with id: @id.', ['@id' => $id]);
-    
-    //Check if entity exists
-    if (!$entity) {
-        $this->logger->notice('No record found with id: @id.', ['@id' => $id]);
-        throw new NotFoundHttpException();
+  public function get($id): JsonResponse {
+    // Use current user after pass authentication to validate access.
+    $this->logger->info('Attempting to get json response: @id.', ['@id' => $id]);
+    if (!$this->currentUser->hasPermission('access content')) {
+      throw new AccessDeniedHttpException();
     }
-    
-    //delete the entity
-    $entity->delete();
-    $this->logger->notice('The delete_report_builder record @id has been deleted.', ['@id' => $id]);
-    
-    // Deleted responses have an empty body.
-    return new ModifiedResourceResponse(NULL, 204);
-}
+      $entity = \Drupal::entityTypeManager()->getStorage('report_builder')->load($id);
+      $returnValue = $entity->getJsonString();
+      $this->logger->info('Attempting to return json response: @id.', ['@id' => $id]);
+      return new JsonResponse($returnValue, 200, [], true);
+  }
 }
