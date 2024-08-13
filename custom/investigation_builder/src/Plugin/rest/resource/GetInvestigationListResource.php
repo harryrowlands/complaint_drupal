@@ -25,8 +25,6 @@ use Symfony\Component\Routing\Route;
  *   label = @Translation("Get Investigation List"),
  *   uri_paths = {
  *     "canonical" = "/rest/investigation/list",
- *     "create" = "/rest/investigation/list/add",
- *	   "delete" = "/rest/investigation/list/delete/{investigationId}"
  *   }
  * )
  *
@@ -99,35 +97,7 @@ final class GetInvestigationListResource extends ResourceBase {
     );
   }
 
-  /**
-   * Responds to POST requests and saves the new record.
-   */
-  public function post(array $data): ModifiedResourceResponse {
 
-    if (!$this->currentUser->hasPermission('access content')) {
-      throw new AccessDeniedHttpException();
-    }
-
-    try {
-
-      //    $term_name = $data['revision_status'];  //have to fix this
-      //      $term = $this->setRevisionStatus($term_name);
-
-      // create a new instance of the entity.
-      $entity = InvestigationBuilder::create($data);
-      $entity->save();
-
-      // log the creation of the entity.
-      $this->logger->notice('Created new InvestigationBuilder entity with ID @id.', ['@id' => $entity->id()]);
-
-
-      return new ModifiedResourceResponse($entity, 201);
-    } catch (\Exception $e) {
-      // handle any exceptions that occur during entity creation.
-      $this->logger->error('An error occurred while creating InvestigationBuilder entity: @message', ['@message' => $e->getMessage()]);
-      throw new HttpException(500, 'Internal Server Error');
-    }
-  }
 
   /**
    * Responds to GET requests.
@@ -144,82 +114,16 @@ final class GetInvestigationListResource extends ResourceBase {
     }
 
     try {
-      $response = $this->investigationBuilderService->loadInvestigationBuilderList();
-      return new ResourceResponse($response, 200);
+      $investigationList = $this->investigationBuilderService->getInvestigationList();
+      $response = new ResourceResponse($investigationList);
+      $response->addCacheableDependency($this->currentUser);
+      return $response;
     } catch (\Exception $e) {
       $this->logger->error('An error occurred while loading InvestigationBuilder list: @message', ['@message' => $e->getMessage()]);
       throw new HttpException(500, 'Internal Server Error');
     }
   }
 
-  /**
-   * Responds to PATCH requests.
-   */
-  public function patch($id, array $data): ModifiedResourceResponse {
-    if (!$this->storage->has($id)) {
-      throw new NotFoundHttpException();
-    }
-    $stored_data = $this->storage->get($id);
-    $data += $stored_data;
-    $this->storage->set($id, $data);
-    $this->logger->notice('The get_investigation_list record @id has been updated.', ['@id' => $id]);
-    return new ModifiedResourceResponse($data, 200);
-  }
 
-  /**
-   * Responds to DELETE requests.
-   *
-   * @param string $investigationId
-   *   The ID of the investigation entity to delete.
-   *
-   * @return \Drupal\rest\ModifiedResourceResponse
-   *   The HTTP response object.
-   *
-   * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
-   *   Thrown when the specified entity does not exist.
-   */
-  public function delete($investigationId): ModifiedResourceResponse {
-
-    if (!$this->currentUser->hasPermission('access content')) {
-      throw new AccessDeniedHttpException();
-    }
-
-    $investigation = InvestigationBuilder::load($investigationId);
-    if (!$investigation) {
-      throw new NotFoundHttpException(sprintf('Investigation with ID %s was not found.', $investigationId));
-    }
-
-    try {
-      $investigation->delete();
-      $this->logger->notice('Deleted Investigation entity with ID @id.', ['@id' => $investigationId]);
-
-      return new ModifiedResourceResponse(NULL, 204);
-    } catch (\Exception $e) {
-      $this->logger->error('An error occurred while deleting Investigation entity with ID @id: @message', [
-        '@id' => $investigationId,
-        '@message' => $e->getMessage(),
-      ]);
-      throw new HttpException(500, 'Internal Server Error');
-    }
-  }
-  /**
-   * {@inheritdoc}
-   */
-  protected function getBaseRoute($canonical_path, $method): Route {
-    $route = parent::getBaseRoute($canonical_path, $method);
-    // Set ID validation pattern.
-    if ($method !== 'POST') {
-      $route->setRequirement('investigationId', '\d+');
-    }
-    return $route;
-  }
-
-  /**
-   * Returns next available ID.
-   */
-  private function getNextId(): int {
-    $ids = \array_keys($this->storage->getAll());
-    return count($ids) > 0 ? max($ids) + 1 : 1;
-  }
 
 }
