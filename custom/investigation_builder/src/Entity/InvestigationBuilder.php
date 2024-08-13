@@ -266,7 +266,18 @@ final class InvestigationBuilder extends RevisionableContentEntityBase implement
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Changed'))
       ->setTranslatable(TRUE)
-      ->setDescription(t('The time that the investigation process was last edited.'));
+      ->setDescription(t('The time that the investigation process was last edited.'))
+      ->setDisplayOptions('view', [
+        'label' => 'above',
+        'type' => 'timestamp',
+        'weight' => 20,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayOptions('form', [
+        'type' => 'datetime_timestamp',
+        'weight' => 20,
+      ])
+      ->setDisplayConfigurable('view', TRUE);
 
     return $fields;
   }
@@ -369,5 +380,18 @@ final class InvestigationBuilder extends RevisionableContentEntityBase implement
   {
     $this->set('created', $timestamp);
     return $this;
+  }
+
+    /**
+   * {@inheritdoc}
+   */
+  public function getUpdatedTime()
+  {
+    $timestamp = $this->get('changed')->value;
+    $date_formatter = \Drupal::service('date.formatter');
+
+    // format the timestamp to a  date/time
+    $formatted_date = $date_formatter->format($timestamp);
+    return $formatted_date;
   }
 }
