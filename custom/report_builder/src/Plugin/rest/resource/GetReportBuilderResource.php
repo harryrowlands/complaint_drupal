@@ -2,32 +2,29 @@
 
 declare(strict_types=1);
 
-namespace Drupal\investigation_builder\Plugin\rest\resource;
+namespace Drupal\report_builder\Plugin\rest\resource;
 
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\Core\KeyValueStore\KeyValueStoreInterface;
 use Drupal\Core\Session\AccountProxyInterface;
-use Drupal\investigation_builder\Entity\InvestigationBuilder;
 use Drupal\rest\ModifiedResourceResponse;
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
+use Drupal\report_builder\Entity\ReportBuilder;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Route;
 
 /**
- * Represents Get Investigation Resource records as resources.
+ * Represents get_report_builder records as resources.
  *
  * @RestResource (
- *   id = "get_investigation_resource",
- *   label = @Translation("Get Investigation Resource"),
+ *   id = "get_report_builder_resource",
+ *   label = @Translation("Get report builder resource."),
  *   uri_paths = {
- *     "canonical" = "/api/get-investigation-resource/{investigationId}",
- *     "create" = "/api/get-investigation-resource/{investigationId}",
- *   "patch" = "/api/get-investigation-resource/update/{investigationId}",
- *   "delete" = "/api/get-investigation-resource/{investigationId}"
+ *     "canonical" = "/rest/report/list",
+ *     "create" = "/rest/report/list"
  *   }
  * )
  *
@@ -53,7 +50,7 @@ use Symfony\Component\Routing\Route;
  * Drupal core.
  * @see \Drupal\rest\Plugin\rest\resource\EntityResource
  */
-final class GetInvestigationResource extends ResourceBase {
+final class GetReportBuilderResource extends ResourceBase {
 
   /**
    * The key-value storage.
@@ -73,7 +70,7 @@ final class GetInvestigationResource extends ResourceBase {
     AccountProxyInterface $currentUser,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $serializer_formats, $logger);
-    $this->storage = $keyValueFactory->get('get_investigation_resource');
+    $this->storage = $keyValueFactory->get('get_report_builder_resource');
     $this->currentUser = $currentUser;
   }
 
@@ -92,26 +89,42 @@ final class GetInvestigationResource extends ResourceBase {
     );
   }
 
-
-
   /**
    * Responds to GET requests.
    *
-   * @param string $investigationId
-   *
+   * @return ResourceResponse
+   *    The HTTP response object.
    *
    */
-  public function get($investigationId): JsonResponse
+  public function get()
   {
 
+    // You must to implement the logic of your REST Resource here.
+    // Use current user after pass authentication to validate access.
     if (!$this->currentUser->hasPermission('access content')) {
       throw new AccessDeniedHttpException();
     }
 
-    $investigation = InvestigationBuilder::load($investigationId);
-    $returnValue = $investigation->getJsonString();
+    $unformattedReports = ReportBuilder::loadMultiple();
+    $reportList = array();
+    foreach ($unformattedReports as $unformattedReport) {
+      if ($unformattedReport instanceof ReportBuilder) {
+        $report_builder['label'] = $unformattedReport->getName();
+        $report_builder['entityId'] = $unformattedReport->id();
+        $report_builder['revisionId'] = $unformattedReport->getRevisionId();
+        $report_builder['uid'] = $unformattedReport->getUid();
+        $report_builder['jsonString'] = $unformattedReport->getJsonString();
+        $report_builder['revisionCreationTime'] = $unformattedReport->getRevisionCreationTime();
+        $report_builder['revisionStatus'] = $unformattedReport->getRevisionStatus();
 
-    return new JsonResponse($returnValue, 200, [], true);
+        $reportList[] = $report_builder;
+        unset($report_builder);
+      }
+    }
+
+    $response = new ResourceResponse($reportList);
+    $response->addCacheableDependency($this->currentUser);
+    return $response;
   }
 
 }

@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - report_builder
+id: report_builder_save_action
+label: 'Save report builders'
+type: report_builder
+plugin: entity:save_action:report_builder
+configuration: {  }

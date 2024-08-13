@@ -2,32 +2,29 @@
 
 declare(strict_types=1);
 
-namespace Drupal\investigation_builder\Plugin\rest\resource;
+namespace Drupal\report_builder\Plugin\rest\resource;
 
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\Core\KeyValueStore\KeyValueStoreInterface;
 use Drupal\Core\Session\AccountProxyInterface;
-use Drupal\investigation_builder\Entity\InvestigationBuilder;
 use Drupal\rest\ModifiedResourceResponse;
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
+use Drupal\report_builder\Entity\ReportBuilder;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Route;
 
 /**
- * Represents Get Investigation Resource records as resources.
+ * Represents create_report_builder records as resources.
  *
  * @RestResource (
- *   id = "get_investigation_resource",
- *   label = @Translation("Get Investigation Resource"),
+ *   id = "create_report_builder_resource",
+ *   label = @Translation("create_report_builder"),
  *   uri_paths = {
- *     "canonical" = "/api/get-investigation-resource/{investigationId}",
- *     "create" = "/api/get-investigation-resource/{investigationId}",
- *   "patch" = "/api/get-investigation-resource/update/{investigationId}",
- *   "delete" = "/api/get-investigation-resource/{investigationId}"
+ *     "canonical" = "/rest/report/create",
+ *     "create" = "/rest/report/create"
  *   }
  * )
  *
@@ -53,7 +50,7 @@ use Symfony\Component\Routing\Route;
  * Drupal core.
  * @see \Drupal\rest\Plugin\rest\resource\EntityResource
  */
-final class GetInvestigationResource extends ResourceBase {
+final class CreateReportBuilderResource extends ResourceBase {
 
   /**
    * The key-value storage.
@@ -73,7 +70,7 @@ final class GetInvestigationResource extends ResourceBase {
     AccountProxyInterface $currentUser,
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $serializer_formats, $logger);
-    $this->storage = $keyValueFactory->get('get_investigation_resource');
+    $this->storage = $keyValueFactory->get('create_report_builder_resource');
     $this->currentUser = $currentUser;
   }
 
@@ -92,26 +89,39 @@ final class GetInvestigationResource extends ResourceBase {
     );
   }
 
-
-
   /**
-   * Responds to GET requests.
-   *
-   * @param string $investigationId
-   *
-   *
+   * Returns next available ID.
    */
-  public function get($investigationId): JsonResponse
-  {
-
-    if (!$this->currentUser->hasPermission('access content')) {
-      throw new AccessDeniedHttpException();
+  private function getNextId(): int {
+    $ids = \array_keys($this->storage->getAll());
+    return count($ids) > 0 ? max($ids) + 1 : 1;
+  }
+  
+  /**
+   * Responds to POST requests and saves the new record.
+   */
+  public function post(array $data): ModifiedResourceResponse {
+    try {
+      // create a new instance of the entity.
+      $report = ReportBuilder::create($data);
+      $entityid = $report->save();
+      $returnValue['entityId'] = $report->id();
+      $jsonstring = [
+        'entityId' =>$report->id(),
+        'reportLabel' =>$report->label(),
+        'investigationId' =>$data['investigation_id']
+      ];
+      $reportJsonString = json_encode($jsonstring);
+      $report->setJsonString($reportJsonString);
+      $entityid = $report->save();
+      // log the creation of the entity.
+      $this->logger->notice('Created new report entity with ID @id.', ['@id' => $entityid]);
+      return new ModifiedResourceResponse($report, 201);
+    } catch (\Exception $e) {
+      // handle any exceptions that occur during entity creation.
+      $this->logger->error('An error occurred while creating rport entity: @message', ['@message' => $e->getMessage()]);
+      throw new HttpException(500, 'Internal Server Error');
     }
-
-    $investigation = InvestigationBuilder::load($investigationId);
-    $returnValue = $investigation->getJsonString();
-
-    return new JsonResponse($returnValue, 200, [], true);
   }
 
 }

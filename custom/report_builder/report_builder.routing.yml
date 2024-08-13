@@ -1,0 +1,7 @@
+entity.report_builder.settings:
+  path: 'admin/structure/report-builder'
+  defaults:
+    _form: '\Drupal\report_builder\Form\ReportBuilderSettingsForm'
+    _title: 'Report builder'
+  requirements:
+    _permission: 'administer report_builder'
