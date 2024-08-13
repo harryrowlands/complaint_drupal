@@ -1,0 +1,17 @@
+administer investigation_builder:
+  title: 'Administer investigation builders'
+  restrict access: true
+view investigation_builder:
+  title: 'View investigation builder'
+edit investigation_builder:
+  title: 'Edit investigation builder'
+delete investigation_builder:
+  title: 'Delete investigation builder'
+create investigation_builder:
+  title: 'Create investigation builder'
+view investigation_builder revision:
+  title: 'View investigation builder revision'
+revert investigation_builder revision:
+  title: 'Revert investigation builder revision'
+delete investigation_builder revision:
+  title: 'Delete investigation builder revision'
