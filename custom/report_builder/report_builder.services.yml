@@ -1,0 +1,4 @@
+services:
+  report_builder.service:
+    class: Drupal\report_builder\Services\ReportBuilder\ReportBuilderService
+    arguments: ['@entity_type.manager']

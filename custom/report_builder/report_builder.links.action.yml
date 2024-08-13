@@ -1,0 +1,5 @@
+report_builder.add_form:
+  title: 'Add report builder'
+  route_name: entity.report_builder.add_form
+  appears_on:
+    - entity.report_builder.collection

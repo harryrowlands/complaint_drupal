@@ -1,0 +1,4 @@
+services:
+  investigation_builder.service:
+    class: Drupal\investigation_builder\Services\InvestigationBuilderService\InvestigationBuilderService
+    arguments: ['@entity_type.manager', '@logger.channel.default']

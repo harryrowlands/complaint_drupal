@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - report_builder
+id: report_builder_delete_action
+label: 'Delete report builders'
+type: report_builder
+plugin: entity:delete_action:report_builder
+configuration: {  }
