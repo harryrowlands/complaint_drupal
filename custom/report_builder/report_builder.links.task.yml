@@ -1,0 +1,22 @@
+entity.report_builder.settings:
+  title: 'Settings'
+  route_name: entity.report_builder.settings
+  base_route: entity.report_builder.settings
+entity.report_builder.view:
+  title: 'View'
+  route_name: entity.report_builder.canonical
+  base_route: entity.report_builder.canonical
+entity.report_builder.edit_form:
+  title: 'Edit'
+  route_name: entity.report_builder.edit_form
+  base_route: entity.report_builder.canonical
+entity.report_builder.delete_form:
+  title: 'Delete'
+  route_name: entity.report_builder.delete_form
+  base_route: entity.report_builder.canonical
+  weight: 10
+entity.report_builder.collection:
+  title: 'Report builders'
+  route_name: entity.report_builder.collection
+  base_route: system.admin_content
+  weight: 10
