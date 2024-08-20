@@ -6,26 +6,26 @@ namespace Drupal\report_builder\Plugin\rest\resource;
 
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\Core\KeyValueStore\KeyValueStoreInterface;
-use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\rest\ModifiedResourceResponse;
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
+use Drupal\report_builder\Entity\ReportBuilder;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
-use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Route;
+use Drupal\Core\Session\AccountProxyInterface;
 
 
 /**
- * Represents Get Single Report records as resources.
+ * Represents Update report json records as resources.
  *
  * @RestResource (
- *   id = "get_single_report_resource",
- *   label = @Translation("Get Single Report"),
+ *   id = "update_report_json",
+ *   label = @Translation("Update report json"),
  *   uri_paths = {
- *     "canonical" = "/rest/report/list/{id}",
- *     "create" = "/rest/report/list"
+ *     "canonical" = "/rest/report/update/{id}",
+ *     "create" = "/rest/report/update/{id}"
  *   }
  * )
  *
@@ -51,7 +51,7 @@ use Symfony\Component\Routing\Route;
  * Drupal core.
  * @see \Drupal\rest\Plugin\rest\resource\EntityResource
  */
-final class GetSingleReportResource extends ResourceBase {
+final class UpdateReportJsonResource extends ResourceBase {
 
   /**
    * The key-value storage.
@@ -68,37 +68,45 @@ final class GetSingleReportResource extends ResourceBase {
     array $serializer_formats,
     LoggerInterface $logger,
     KeyValueFactoryInterface $keyValueFactory,
-    AccountProxyInterface $currentUser
+    AccountProxyInterface $currentUser,
+
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $serializer_formats, $logger);
-    $this->storage = $keyValueFactory->get('get_single_report_resource');
+    $this->storage = $keyValueFactory->get('update_report_json');
     $this->currentUser = $currentUser;
   }
 
-  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static(
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition): self {
+    return new self(
       $configuration,
       $plugin_id,
       $plugin_definition,
       $container->getParameter('serializer.formats'),
-      $container->get('logger.factory')->get('get_single_report_resource'),
+      $container->get('logger.factory')->get('rest'),
       $container->get('keyvalue'),
       $container->get('current_user')
     );
   }
 
   /**
-   * Responds to GET requests.
+   * Responds to PATCH requests. Used to update the Json on the investigation (currently called here: report_builder). snip: , array $newSteps
    */
-  public function get($id): JsonResponse {
-    // Use current user after pass authentication to validate access.
-    //$this->logger->info('Attempting to get json response: @id.', ['@id' => $id]);
+  public function patch($id, array $data): ModifiedResourceResponse {
+    $this->logger->info('Attempting to patch');
+    // -- Are you authenticated?
     if (!$this->currentUser->hasPermission('access content')) {
       throw new AccessDeniedHttpException();
     }
-      $entity = \Drupal::entityTypeManager()->getStorage('report_builder')->load($id);
-      $returnValue = $entity->getJsonString();
-      //$this->logger->info('Attempting to return json response: @id.', ['@id' => $id]);
-      return new JsonResponse($returnValue, 200, [], true);
+
+    // -- Update Json
+    $report = ReportBuilder::load($id);
+    $newStepsData = json_encode($data);
+    $report->setJsonString($newStepsData);
+    $entity=$report->save();
+    return new ModifiedResourceResponse($entity, 200);
   }
+
 }

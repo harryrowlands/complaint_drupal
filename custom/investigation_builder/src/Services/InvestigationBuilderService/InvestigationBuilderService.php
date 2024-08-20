@@ -135,6 +135,9 @@ final class InvestigationBuilderService implements InvestigationBuilderServiceIn
 
   }
 
+  public function getJsonString(): string {
+    return $this->get('json_string')->value;
+  }
   
 
 
