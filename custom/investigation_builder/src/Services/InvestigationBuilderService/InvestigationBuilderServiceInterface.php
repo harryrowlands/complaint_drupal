@@ -65,7 +65,13 @@ interface InvestigationBuilderServiceInterface {
    */
   public function deleteInvestigation($investigationId);
 
-
+    /**
+   * Gets the JSON string.
+   *
+   * @return string
+   *   The JSON string.
+   */
+  public function getJsonString(): string;
 
 
 
