@@ -1,0 +1,17 @@
+administer investigation_documents_investigationdocuments:
+  title: 'Administer investigationdocumentss'
+  restrict access: true
+view investigation_documents_investigationdocuments:
+  title: 'View investigationdocuments'
+edit investigation_documents_investigationdocuments:
+  title: 'Edit investigationdocuments'
+delete investigation_documents_investigationdocuments:
+  title: 'Delete investigationdocuments'
+create investigation_documents_investigationdocuments:
+  title: 'Create investigationdocuments'
+view investigation_documents_investigationdocuments revision:
+  title: 'View investigationdocuments revision'
+revert investigation_documents_investigationdocuments revision:
+  title: 'Revert investigationdocuments revision'
+delete investigation_documents_investigationdocuments revision:
+  title: 'Delete investigationdocuments revision'

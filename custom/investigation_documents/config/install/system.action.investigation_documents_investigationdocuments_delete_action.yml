@@ -1,0 +1,10 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - investigation_documents
+id: investigation_documents_investigationdocuments_delete_action
+label: 'Delete investigationdocumentss'
+type: investigation_documents_investigationdocuments
+plugin: entity:delete_action:investigation_documents_investigationdocuments
+configuration: {  }
