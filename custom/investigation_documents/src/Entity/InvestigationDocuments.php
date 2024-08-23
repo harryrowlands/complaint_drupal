@@ -7,10 +7,13 @@ namespace Drupal\investigation_documents\Entity;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\Core\Entity\RevisionableContentEntityBase;
+use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\investigation_documents\InvestigationDocumentsInterface;
 use Drupal\user\EntityOwnerTrait;
+
+use Drupal\Core\File\FileSystemInterface;
+use Drupal\user\UserInterface;
 
 /**
  * Defines the investigationdocuments entity class.
@@ -34,33 +37,21 @@ use Drupal\user\EntityOwnerTrait;
  *       "edit" = "Drupal\investigation_documents\Form\InvestigationDocumentsForm",
  *       "delete" = "Drupal\Core\Entity\ContentEntityDeleteForm",
  *       "delete-multiple-confirm" = "Drupal\Core\Entity\Form\DeleteMultipleForm",
- *       "revision-delete" = \Drupal\Core\Entity\Form\RevisionDeleteForm::class,
- *       "revision-revert" = \Drupal\Core\Entity\Form\RevisionRevertForm::class,
  *     },
  *     "route_provider" = {
  *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider",
- *       "revision" = \Drupal\Core\Entity\Routing\RevisionHtmlRouteProvider::class,
  *     },
  *   },
  *   base_table = "investigation_documents_investigationdocuments",
  *   data_table = "investigation_documents_investigationdocuments_field_data",
- *   revision_table = "investigation_documents_investigationdocuments_revision",
- *   revision_data_table = "investigation_documents_investigationdocuments_field_revision",
- *   show_revision_ui = TRUE,
  *   translatable = TRUE,
  *   admin_permission = "administer investigation_documents_investigationdocuments",
  *   entity_keys = {
  *     "id" = "id",
- *     "revision" = "revision_id",
  *     "langcode" = "langcode",
  *     "label" = "label",
  *     "uuid" = "uuid",
  *     "owner" = "uid",
- *   },
- *   revision_metadata_keys = {
- *     "revision_user" = "revision_uid",
- *     "revision_created" = "revision_timestamp",
- *     "revision_log_message" = "revision_log",
  *   },
  *   links = {
  *     "collection" = "/admin/content/investigationdocuments",
@@ -69,18 +60,90 @@ use Drupal\user\EntityOwnerTrait;
  *     "edit-form" = "/investigationdocuments/{investigation_documents_investigationdocuments}/edit",
  *     "delete-form" = "/investigationdocuments/{investigation_documents_investigationdocuments}/delete",
  *     "delete-multiple-form" = "/admin/content/investigationdocuments/delete-multiple",
- *     "revision" = "/investigationdocuments/{investigation_documents_investigationdocuments}/revision/{investigation_documents_investigationdocuments_revision}/view",
- *     "revision-delete-form" = "/investigationdocuments/{investigation_documents_investigationdocuments}/revision/{investigation_documents_investigationdocuments_revision}/delete",
- *     "revision-revert-form" = "/investigationdocuments/{investigation_documents_investigationdocuments}/revision/{investigation_documents_investigationdocuments_revision}/revert",
- *     "version-history" = "/investigationdocuments/{investigation_documents_investigationdocuments}/revisions",
  *   },
  *   field_ui_base_route = "entity.investigation_documents_investigationdocuments.settings",
  * )
  */
-final class InvestigationDocuments extends RevisionableContentEntityBase implements InvestigationDocumentsInterface {
+
+ final class InvestigationDocuments extends ContentEntityBase implements InvestigationDocumentsInterface {
 
   use EntityChangedTrait;
   use EntityOwnerTrait;
+
+public function getLabel(): string {
+  return $this->get('label')->value;
+}
+
+public function setLabel(string $label): self {
+  $this->set('label', $label);
+  return $this;
+}
+
+public function getStatus(): bool {
+  return (bool) $this->get('status')->value;
+}
+
+public function setStatus(bool $status): self {
+  $this->set('status', $status);
+  return $this;
+}
+
+public function getNotes(): string {
+  return $this->get('notes')->value;
+}
+
+public function setNotes(string $notes): self {
+  $this->set('notes', $notes);
+  return $this;
+}
+
+public function getCreatedTime(): string {
+  return $this->get('created')->value;
+}
+
+public function getChangedTime(): string {
+  return $this->get('changed')->value;
+}
+
+public function getInvestigationId(): string {
+  return (int) $this->get('investigationId')->value;
+}
+
+public function setInvestigationId(int $investigationId): self {
+  $this->set('investigationId', $investigationId);
+  return $this;
+}
+
+public function isVisible(): bool {
+  return (bool) $this->get('visible')->value;
+}
+
+public function setVisible(bool $visible): self {
+  $this->set('visible', $visible);
+  return $this;
+}
+
+public function getStepId(): string {
+  return $this->get('stepId')->value;
+}
+
+public function setStepId(string $stepId): self {
+  $this->set('stepId', $stepId);
+  return $this;
+}
+
+
+  /**
+   * Get the file entity ID.
+   *
+   * @return int|null
+   *   The file entity ID or NULL if no file is associated.
+   */
+  public function getFileId(): ?int {
+    $file = $this->get('file')->entity;
+    return $file ? (int) $file->id() : null;
+  }
+
 
   /**
    * {@inheritdoc}
@@ -101,7 +164,6 @@ final class InvestigationDocuments extends RevisionableContentEntityBase impleme
     $fields = parent::baseFieldDefinitions($entity_type);
 
     $fields['label'] = BaseFieldDefinition::create('string')
-      ->setRevisionable(TRUE)
       ->setTranslatable(TRUE)
       ->setLabel(t('Label'))
       ->setRequired(TRUE)
@@ -119,7 +181,6 @@ final class InvestigationDocuments extends RevisionableContentEntityBase impleme
       ->setDisplayConfigurable('view', TRUE);
 
     $fields['status'] = BaseFieldDefinition::create('boolean')
-      ->setRevisionable(TRUE)
       ->setLabel(t('Status'))
       ->setDefaultValue(TRUE)
       ->setSetting('on_label', 'Enabled')
@@ -141,10 +202,9 @@ final class InvestigationDocuments extends RevisionableContentEntityBase impleme
       ])
       ->setDisplayConfigurable('view', TRUE);
 
-    $fields['description'] = BaseFieldDefinition::create('text_long')
-      ->setRevisionable(TRUE)
+    $fields['notes'] = BaseFieldDefinition::create('text_long')
       ->setTranslatable(TRUE)
-      ->setLabel(t('Description'))
+      ->setLabel(t('Notes'))
       ->setDisplayOptions('form', [
         'type' => 'text_textarea',
         'weight' => 10,
@@ -158,7 +218,6 @@ final class InvestigationDocuments extends RevisionableContentEntityBase impleme
       ->setDisplayConfigurable('view', TRUE);
 
     $fields['uid'] = BaseFieldDefinition::create('entity_reference')
-      ->setRevisionable(TRUE)
       ->setTranslatable(TRUE)
       ->setLabel(t('Author'))
       ->setSetting('target_type', 'user')
@@ -183,7 +242,7 @@ final class InvestigationDocuments extends RevisionableContentEntityBase impleme
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Authored on'))
       ->setTranslatable(TRUE)
-      ->setDescription(t('The time that the investigationdocuments was created.'))
+      ->setDescription(t('The time that the survey documents was created.'))
       ->setDisplayOptions('view', [
         'label' => 'above',
         'type' => 'timestamp',
@@ -199,7 +258,52 @@ final class InvestigationDocuments extends RevisionableContentEntityBase impleme
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Changed'))
       ->setTranslatable(TRUE)
-      ->setDescription(t('The time that the investigationdocuments was last edited.'));
+      ->setDescription(t('The time that the survey documents was last edited.'));
+
+    $fields['investigationId'] = BaseFieldDefinition::create('integer')
+      ->setLabel(t('Investigation ID'))
+      ->setDisplayOptions('form', [
+        'type' => 'number',
+        'weight' => -3,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['visible'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('Visible'))
+      ->setDefaultValue(TRUE)
+      ->setDisplayOptions('form', [
+        'type' => 'boolean_checkbox',
+        'weight' => -2,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['stepId'] = BaseFieldDefinition::create('string')
+      ->setLabel(t('Step ID'))
+      ->setSetting('max_length', 255)
+      ->setDisplayOptions('form', [
+        'type' => 'string_textfield',
+        'weight' => -1,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
+
+    $fields['file'] = BaseFieldDefinition::create('file')
+      ->setLabel(t('File'))
+      ->setDescription(t('Upload a file'))
+      ->setSettings([
+        'file_directory' => 'private://survey_documents',
+        'file_extensions' => 'doc xls pdf ppt pps odt ods odp txt mp3 mov mpg flv m4v mp4 ogg ovg wmv png gif jpg jpeg ico',
+        'max_filesize' => '',
+        'handler' => 'default:file',
+      ])
+      ->setDisplayOptions('form', [
+        'type' => 'file',
+        'weight' => 0,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', TRUE);
 
     return $fields;
   }
