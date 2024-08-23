@@ -19,7 +19,7 @@ use Drupal\user\UserInterface;
  * Defines the investigationdocuments entity class.
  *
  * @ContentEntityType(
- *   id = "investigation_documents_investigationdocuments",
+ *   id = "investigation_documents",
  *   label = @Translation("InvestigationDocuments"),
  *   label_collection = @Translation("InvestigationDocumentss"),
  *   label_singular = @Translation("investigationdocuments"),
@@ -42,10 +42,10 @@ use Drupal\user\UserInterface;
  *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider",
  *     },
  *   },
- *   base_table = "investigation_documents_investigationdocuments",
- *   data_table = "investigation_documents_investigationdocuments_field_data",
+ *   base_table = "investigation_documents",
+ *   data_table = "investigation_documents_field_data",
  *   translatable = TRUE,
- *   admin_permission = "administer investigation_documents_investigationdocuments",
+ *   admin_permission = "administer investigation_documents",
  *   entity_keys = {
  *     "id" = "id",
  *     "langcode" = "langcode",
@@ -56,12 +56,12 @@ use Drupal\user\UserInterface;
  *   links = {
  *     "collection" = "/admin/content/investigationdocuments",
  *     "add-form" = "/investigationdocuments/add",
- *     "canonical" = "/investigationdocuments/{investigation_documents_investigationdocuments}",
- *     "edit-form" = "/investigationdocuments/{investigation_documents_investigationdocuments}/edit",
- *     "delete-form" = "/investigationdocuments/{investigation_documents_investigationdocuments}/delete",
+ *     "canonical" = "/investigationdocuments/{investigation_documents}",
+ *     "edit-form" = "/investigationdocuments/{investigation_documents}/edit",
+ *     "delete-form" = "/investigationdocuments/{investigation_documents}/delete",
  *     "delete-multiple-form" = "/admin/content/investigationdocuments/delete-multiple",
  *   },
- *   field_ui_base_route = "entity.investigation_documents_investigationdocuments.settings",
+ *   field_ui_base_route = "entity.investigation_documents.settings",
  * )
  */
 

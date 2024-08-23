@@ -6,13 +6,18 @@ namespace Drupal\investigation_documents\Plugin\rest\resource;
 
 use Drupal\Core\KeyValueStore\KeyValueFactoryInterface;
 use Drupal\Core\KeyValueStore\KeyValueStoreInterface;
+use Drupal\Core\Session\AccountProxyInterface;
+use Drupal\file\Entity\File;
 use Drupal\rest\ModifiedResourceResponse;
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
+use Drupal\investigation_documents\Entity\InvestigationDocuments;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Route;
+use function array_keys;
 
 /**
  * Represents Investigation Document Post Create records as resources.
@@ -21,8 +26,8 @@ use Symfony\Component\Routing\Route;
  *   id = "investigation_document_post_create_resource",
  *   label = @Translation("Investigation Document Post Create"),
  *   uri_paths = {
- *     "canonical" = "/api/investigation-document-post-create-resource/{id}",
- *     "create" = "/api/investigation-document-post-create-resource"
+ *     "canonical" = "/rest/investigation/document/post/{id}",
+ *     "create" = "/rest/investigation/document/post"
  *   }
  * )
  *
@@ -70,7 +75,7 @@ final class InvestigationDocumentPostCreateResource extends ResourceBase {
     array                    $serializer_formats,
     LoggerInterface          $logger,
     KeyValueFactoryInterface $keyValueFactory,
-    AccountProxyInterface    $currentUser,
+    AccountProxyInterface    $currentUser
   )
   {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $serializer_formats, $logger);

@@ -26,8 +26,8 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
  *   id = "get_investigation_document_list_resource",
  *   label = @Translation("Get Investigation Document List"),
  *   uri_paths = {
- *     "canonical" = "/api/get-investigation-document-list/{investigationId}",
- *     "create" = "/api/get-investigation-document-list"
+ *     "canonical" = "/rest/investigation/document/get/{investigationId}",
+ *     "create" = "/rest/investigation/document/get/"
  *   }
  * )
  *
@@ -76,7 +76,7 @@ final class GetInvestigationDocumentListResource extends ResourceBase {
     LoggerInterface $logger,
     KeyValueFactoryInterface $keyValueFactory,
     AccountProxyInterface    $currentUser,
-    EntityTypeManagerInterface $entityTypeManager,
+    EntityTypeManagerInterface $entityTypeManager
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $serializer_formats, $logger);
     $this->storage = $keyValueFactory->get('get_investigation_document_resource');
@@ -95,7 +95,7 @@ final class GetInvestigationDocumentListResource extends ResourceBase {
       $container->getParameter('serializer.formats'),
       $container->get('logger.factory')->get('rest'),
       $container->get('keyvalue'),
-       $container->get('current_user'),
+      $container->get('current_user'),
       $container->get('entity_type.manager')
     );
   }
