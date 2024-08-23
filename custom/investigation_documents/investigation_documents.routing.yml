@@ -1,0 +1,7 @@
+entity.investigation_documents_investigationdocuments.settings:
+  path: 'admin/structure/investigation-documents-investigationdocuments'
+  defaults:
+    _form: '\Drupal\investigation_documents\Form\InvestigationDocumentsSettingsForm'
+    _title: 'InvestigationDocuments'
+  requirements:
+    _permission: 'administer investigation_documents_investigationdocuments'
