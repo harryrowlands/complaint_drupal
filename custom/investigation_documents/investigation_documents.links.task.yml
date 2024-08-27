@@ -1,22 +1,22 @@
-entity.investigation_documents_investigationdocuments.settings:
+entity.investigation_documents.settings:
   title: 'Settings'
-  route_name: entity.investigation_documents_investigationdocuments.settings
-  base_route: entity.investigation_documents_investigationdocuments.settings
-entity.investigation_documents_investigationdocuments.view:
+  route_name: entity.investigation_documents.settings
+  base_route: entity.investigation_documents.settings
+entity.investigation_documents.view:
   title: 'View'
-  route_name: entity.investigation_documents_investigationdocuments.canonical
-  base_route: entity.investigation_documents_investigationdocuments.canonical
+  route_name: entity.investigation_documents.canonical
+  base_route: entity.investigation_documents.canonical
 entity.investigation_documents_investigationdocuments.edit_form:
   title: 'Edit'
-  route_name: entity.investigation_documents_investigationdocuments.edit_form
-  base_route: entity.investigation_documents_investigationdocuments.canonical
+  route_name: entity.investigation_documents.edit_form
+  base_route: entity.investigation_documents.canonical
 entity.investigation_documents_investigationdocuments.delete_form:
   title: 'Delete'
-  route_name: entity.investigation_documents_investigationdocuments.delete_form
-  base_route: entity.investigation_documents_investigationdocuments.canonical
+  route_name: entity.investigation_documents.delete_form
+  base_route: entity.investigation_documents.canonical
   weight: 10
-entity.investigation_documents_investigationdocuments.collection:
+entity.investigation_documents.collection:
   title: 'InvestigationDocumentss'
-  route_name: entity.investigation_documents_investigationdocuments.collection
+  route_name: entity.investigation_documents.collection
   base_route: system.admin_content
   weight: 10

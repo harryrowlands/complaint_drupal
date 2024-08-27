@@ -144,6 +144,13 @@ public function setStepId(string $stepId): self {
     return $file ? (int) $file->id() : null;
   }
 
+  // public function getFile(){
+  //   $file = $this->get('file')->entity;
+  //   $url = file_create_url($file->getFileUrl());
+
+  //   return $url;
+  // }
+
 
   /**
    * {@inheritdoc}
@@ -242,7 +249,7 @@ public function setStepId(string $stepId): self {
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Authored on'))
       ->setTranslatable(TRUE)
-      ->setDescription(t('The time that the survey documents was created.'))
+      ->setDescription(t('The time that the investigation documents was created.'))
       ->setDisplayOptions('view', [
         'label' => 'above',
         'type' => 'timestamp',
@@ -258,7 +265,7 @@ public function setStepId(string $stepId): self {
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Changed'))
       ->setTranslatable(TRUE)
-      ->setDescription(t('The time that the survey documents was last edited.'));
+      ->setDescription(t('The time that the investigation documents was last edited.'));
 
     $fields['investigationId'] = BaseFieldDefinition::create('integer')
       ->setLabel(t('Investigation ID'))
@@ -293,7 +300,7 @@ public function setStepId(string $stepId): self {
       ->setLabel(t('File'))
       ->setDescription(t('Upload a file'))
       ->setSettings([
-        'file_directory' => 'private://survey_documents',
+        'file_directory' => 'private://investigation_documents',
         'file_extensions' => 'doc xls pdf ppt pps odt ods odp txt mp3 mov mpg flv m4v mp4 ogg ovg wmv png gif jpg jpeg ico',
         'max_filesize' => '',
         'handler' => 'default:file',
