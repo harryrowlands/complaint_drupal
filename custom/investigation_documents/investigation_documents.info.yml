@@ -1,0 +1,5 @@
+name: 'Investigation Documents'
+type: module
+description: 'Handles files uploaded during investigations.'
+package: 'CS321'
+core_version_requirement: ^10

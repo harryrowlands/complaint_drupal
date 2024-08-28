@@ -11,10 +11,13 @@ use Drupal\rest\ModifiedResourceResponse;
 use Drupal\rest\Plugin\ResourceBase;
 use Drupal\rest\ResourceResponse;
 use Drupal\report_builder\Entity\ReportBuilder;
+use Drupal\investigation_builder\Entity\InvestigationBuilder;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\Routing\Route;
+
 
 /**
  * Represents create_report_builder records as resources.
@@ -100,16 +103,31 @@ final class CreateReportBuilderResource extends ResourceBase {
   /**
    * Responds to POST requests and saves the new record.
    */
-  public function post(array $data): ModifiedResourceResponse {
+  public function post($data): ModifiedResourceResponse {
     try {
-      // create a new instance of the entity.
+      // -- Are you authenticated?
+      if (!$this->currentUser->hasPermission('access content')) {
+        throw new AccessDeniedHttpException();
+      }
+
+      $this->logger->notice('Data received: @data', ['@data' => json_encode($data)]);
+      
+      // -- Do some tests
+      $processId = $data['investigation_id'];
+      $this->logger->notice('Investigation ID: @id', ['@id' => $processId]);
+      $investigation = InvestigationBuilder::load($processId);
+
+      $newInvestigationJson = $investigation->getJsonString();
+      $newInvestigationData = json_decode($newInvestigationJson, true);
+
       $report = ReportBuilder::create($data);
       $entityid = $report->save();
       $returnValue['entityId'] = $report->id();
       $jsonstring = [
         'entityId' =>$report->id(),
         'reportLabel' =>$report->label(),
-        'investigationId' =>$data['investigation_id']
+        'investigationId' =>$data['investigation_id'],
+        'steps'=> $newInvestigationData['steps'],
       ];
       $reportJsonString = json_encode($jsonstring);
       $report->setJsonString($reportJsonString);
@@ -117,9 +135,27 @@ final class CreateReportBuilderResource extends ResourceBase {
       // log the creation of the entity.
       $this->logger->notice('Created new report entity with ID @id.', ['@id' => $entityid]);
       return new ModifiedResourceResponse($report, 201);
+
+      
+      // -- DIVIDER
+      // create a new instance of the entity.
+      //$report = ReportBuilder::create($data);
+      //$entityid = $report->save();
+      //$returnValue['entityId'] = $report->id();
+      //$jsonstring = [
+      //  'entityId' =>$report->id(),
+      //  'reportLabel' =>$report->label(),
+      //  'investigationId' =>$data['investigation_id']
+      //];
+      //$reportJsonString = json_encode($jsonstring);
+      //$report->setJsonString($reportJsonString);
+      //$entityid = $report->save();
+      //// log the creation of the entity.
+      //$this->logger->notice('Created new report entity with ID @id.', ['@id' => $entityid]);
+      //return new ModifiedResourceResponse($report, 201);
     } catch (\Exception $e) {
       // handle any exceptions that occur during entity creation.
-      $this->logger->error('An error occurred while creating rport entity: @message', ['@message' => $e->getMessage()]);
+      $this->logger->error('An error occurred while creating the new investigation entity: @message', ['@message' => $e->getMessage()]);
       throw new HttpException(500, 'Internal Server Error');
     }
   }

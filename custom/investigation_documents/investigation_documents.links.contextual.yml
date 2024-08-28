@@ -1,0 +1,10 @@
+entity.investigation_documents.edit_form:
+  route_name: entity.investigation_documents.edit_form
+  group: investigation_documents
+  title: 'Edit'
+
+entity.investigation_documents.delete_form:
+  route_name: entity.investigation_documents.delete_form
+  group: investigation_documents
+  title: 'Delete'
+  weight: 10

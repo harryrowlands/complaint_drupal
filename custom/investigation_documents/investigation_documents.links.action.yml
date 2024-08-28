@@ -1,0 +1,5 @@
+investigation_documents.add_form:
+  title: 'Add investigation documents'
+  route_name: entity.investigation_documents.add_form
+  appears_on:
+    - entity.investigation_documents.collection
