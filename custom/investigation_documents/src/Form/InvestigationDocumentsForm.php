@@ -8,7 +8,7 @@ use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
 
 /**
- * Form controller for the investigationdocuments entity edit forms.
+ * Form controller for the investigation documents entity edit forms.
  */
 final class InvestigationDocumentsForm extends ContentEntityForm {
 
@@ -26,13 +26,13 @@ final class InvestigationDocumentsForm extends ContentEntityForm {
 
     switch ($result) {
       case SAVED_NEW:
-        $this->messenger()->addStatus($this->t('New investigationdocuments %label has been created.', $message_args));
-        $this->logger('investigation_documents')->notice('New investigationdocuments %label has been created.', $logger_args);
+        $this->messenger()->addStatus($this->t('New investigation documents %label has been created.', $message_args));
+        $this->logger('investigation_documents')->notice('New investigation documents %label has been created.', $logger_args);
         break;
 
       case SAVED_UPDATED:
-        $this->messenger()->addStatus($this->t('The investigationdocuments %label has been updated.', $message_args));
-        $this->logger('investigation_documents')->notice('The investigationdocuments %label has been updated.', $logger_args);
+        $this->messenger()->addStatus($this->t('The investigation documents %label has been updated.', $message_args));
+        $this->logger('investigation_documents')->notice('The investigation documents %label has been updated.', $logger_args);
         break;
 
       default:

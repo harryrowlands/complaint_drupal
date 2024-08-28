@@ -10,7 +10,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Session\AccountInterface;
 
 /**
- * Defines the access control handler for the investigationdocuments entity type.
+ * Defines the access control handler for the investigation documents entity type.
  *
  * phpcs:disable Drupal.Arrays.Array.LongLineDeclaration
  *
@@ -27,12 +27,9 @@ final class InvestigationDocumentsAccessControlHandler extends EntityAccessContr
     }
 
     return match($operation) {
-      'view' => AccessResult::allowedIfHasPermission($account, 'view investigation_documents_investigationdocuments'),
-      'update' => AccessResult::allowedIfHasPermission($account, 'edit investigation_documents_investigationdocuments'),
-      'delete' => AccessResult::allowedIfHasPermission($account, 'delete investigation_documents_investigationdocuments'),
-      'delete revision' => AccessResult::allowedIfHasPermission($account, 'delete investigation_documents_investigationdocuments revision'),
-      'view all revisions', 'view revision' => AccessResult::allowedIfHasPermissions($account, ['view investigation_documents_investigationdocuments revision', 'view investigation_documents_investigationdocuments']),
-      'revert' => AccessResult::allowedIfHasPermissions($account, ['revert investigation_documents_investigationdocuments revision', 'edit investigation_documents_investigationdocuments']),
+      'view' => AccessResult::allowedIfHasPermission($account, 'view investigation_documents'),
+      'update' => AccessResult::allowedIfHasPermission($account, 'edit investigation_documents'),
+      'delete' => AccessResult::allowedIfHasPermission($account, 'delete investigation_documents'),
       default => AccessResult::neutral(),
     };
   }
@@ -41,7 +38,7 @@ final class InvestigationDocumentsAccessControlHandler extends EntityAccessContr
    * {@inheritdoc}
    */
   protected function checkCreateAccess(AccountInterface $account, array $context, $entity_bundle = NULL): AccessResult {
-    return AccessResult::allowedIfHasPermissions($account, ['create investigation_documents_investigationdocuments', 'administer investigation_documents_investigationdocuments'], 'OR');
+    return AccessResult::allowedIfHasPermissions($account, ['create investigation_documents', 'administer investigation_documents'], 'OR');
   }
 
 }

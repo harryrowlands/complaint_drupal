@@ -1,11 +1,11 @@
 entity.investigation_documents.settings:
-  title: 'InvestigationDocuments'
-  description: 'Configure an InvestigationDocuments entity type.'
+  title: 'Investigation Documents'
+  description: 'Configure an Investigation Documents entity type.'
   route_name:  entity.investigation_documents.settings
   parent: system.admin_structure
 
 entity.investigation_documents.collection:
-  title: 'InvestigationDocumentss'
-  description: 'List of investigationdocumentss.'
+  title: 'Investigation Documentss'
+  description: 'List of investigation documentss.'
   route_name: entity.investigation_documents.collection
   parent: system.admin_content
