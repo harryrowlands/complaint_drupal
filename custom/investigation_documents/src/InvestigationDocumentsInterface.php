@@ -9,7 +9,7 @@ use Drupal\Core\Entity\EntityChangedInterface;
 use Drupal\user\EntityOwnerInterface;
 
 /**
- * Provides an interface defining an investigationdocuments entity type.
+ * Provides an interface defining an investigation documents entity type.
  */
 interface InvestigationDocumentsInterface extends ContentEntityInterface, EntityOwnerInterface, EntityChangedInterface {
 

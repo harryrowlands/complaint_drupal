@@ -1,11 +1,11 @@
-administer investigation_documents_investigationdocuments:
-  title: 'Administer investigationdocumentss'
+administer investigation_documents:
+  title: 'Administer investigation documentss'
   restrict access: true
-view investigation_documents_investigationdocuments:
-  title: 'View investigationdocuments'
-edit investigation_documents_investigationdocuments:
-  title: 'Edit investigationdocuments'
-delete investigation_documents_investigationdocuments:
-  title: 'Delete investigationdocuments'
-create investigation_documents_investigationdocuments:
-  title: 'Create investigationdocuments'
+view investigation_documents:
+  title: 'View investigation documents'
+edit investigation_documents:
+  title: 'Edit investigation documents'
+delete investigation_documents:
+  title: 'Delete investigation documents'
+create investigation_documents:
+  title: 'Create investigation documents'

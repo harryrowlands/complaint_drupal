@@ -4,29 +4,26 @@ declare(strict_types=1);
 
 namespace Drupal\investigation_documents\Entity;
 
+use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\investigation_documents\InvestigationDocumentsInterface;
 use Drupal\user\EntityOwnerTrait;
 
-use Drupal\Core\File\FileSystemInterface;
-use Drupal\user\UserInterface;
-
 /**
- * Defines the investigationdocuments entity class.
+ * Defines the investigation documents entity class.
  *
  * @ContentEntityType(
  *   id = "investigation_documents",
- *   label = @Translation("InvestigationDocuments"),
- *   label_collection = @Translation("InvestigationDocumentss"),
- *   label_singular = @Translation("investigationdocuments"),
- *   label_plural = @Translation("investigationdocumentss"),
+ *   label = @Translation("Investigation Documents"),
+ *   label_collection = @Translation("Investigation Documentss"),
+ *   label_singular = @Translation("investigation documents"),
+ *   label_plural = @Translation("investigation documentss"),
  *   label_count = @PluralTranslation(
- *     singular = "@count investigationdocumentss",
- *     plural = "@count investigationdocumentss",
+ *     singular = "@count investigation documentss",
+ *     plural = "@count investigation documentss",
  *   ),
  *   handlers = {
  *     "list_builder" = "Drupal\investigation_documents\InvestigationDocumentsListBuilder",
@@ -54,18 +51,17 @@ use Drupal\user\UserInterface;
  *     "owner" = "uid",
  *   },
  *   links = {
- *     "collection" = "/admin/content/investigationdocuments",
- *     "add-form" = "/investigationdocuments/add",
- *     "canonical" = "/investigationdocuments/{investigation_documents}",
- *     "edit-form" = "/investigationdocuments/{investigation_documents}/edit",
- *     "delete-form" = "/investigationdocuments/{investigation_documents}/delete",
- *     "delete-multiple-form" = "/admin/content/investigationdocuments/delete-multiple",
+ *     "collection" = "/admin/content/investigation-documents",
+ *     "add-form" = "/investigation-documents/add",
+ *     "canonical" = "/investigation-documents/{investigation_documents}",
+ *     "edit-form" = "/investigation-documents/{investigation_documents}/edit",
+ *     "delete-form" = "/investigation-documents/{investigation_documents}/delete",
+ *     "delete-multiple-form" = "/admin/content/investigation-documents/delete-multiple",
  *   },
  *   field_ui_base_route = "entity.investigation_documents.settings",
  * )
  */
-
- final class InvestigationDocuments extends ContentEntityBase implements InvestigationDocumentsInterface {
+final class InvestigationDocuments extends ContentEntityBase implements InvestigationDocumentsInterface {
 
   use EntityChangedTrait;
   use EntityOwnerTrait;
@@ -143,6 +139,13 @@ public function setStepId(string $stepId): self {
     $file = $this->get('file')->entity;
     return $file ? (int) $file->id() : null;
   }
+
+  // public function getFile(){
+  //   $file = $this->get('file')->entity;
+  //   $url = file_create_url($file->getFileUrl());
+
+  //   return $url;
+  // }
 
 
   /**
@@ -242,7 +245,7 @@ public function setStepId(string $stepId): self {
     $fields['created'] = BaseFieldDefinition::create('created')
       ->setLabel(t('Authored on'))
       ->setTranslatable(TRUE)
-      ->setDescription(t('The time that the survey documents was created.'))
+      ->setDescription(t('The time that the investigation documents was created.'))
       ->setDisplayOptions('view', [
         'label' => 'above',
         'type' => 'timestamp',
@@ -258,7 +261,7 @@ public function setStepId(string $stepId): self {
     $fields['changed'] = BaseFieldDefinition::create('changed')
       ->setLabel(t('Changed'))
       ->setTranslatable(TRUE)
-      ->setDescription(t('The time that the survey documents was last edited.'));
+      ->setDescription(t('The time that the investigation documents was last edited.'));
 
     $fields['investigationId'] = BaseFieldDefinition::create('integer')
       ->setLabel(t('Investigation ID'))
@@ -293,7 +296,7 @@ public function setStepId(string $stepId): self {
       ->setLabel(t('File'))
       ->setDescription(t('Upload a file'))
       ->setSettings([
-        'file_directory' => 'private://survey_documents',
+        'file_directory' => 'private://investigation_documents',
         'file_extensions' => 'doc xls pdf ppt pps odt ods odp txt mp3 mov mpg flv m4v mp4 ogg ovg wmv png gif jpg jpeg ico',
         'max_filesize' => '',
         'handler' => 'default:file',
