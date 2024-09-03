@@ -8,7 +8,7 @@ use Drupal\Core\Entity\EntityInterface;
 use Drupal\Core\Entity\EntityListBuilder;
 
 /**
- * Provides a list controller for the investigationdocuments entity type.
+ * Provides a list controller for the investigation documents entity type.
  */
 final class InvestigationDocumentsListBuilder extends EntityListBuilder {
 

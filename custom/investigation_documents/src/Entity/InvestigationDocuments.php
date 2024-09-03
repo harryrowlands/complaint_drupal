@@ -4,29 +4,26 @@ declare(strict_types=1);
 
 namespace Drupal\investigation_documents\Entity;
 
+use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityChangedTrait;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\Core\Entity\EntityTypeInterface;
-use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Field\BaseFieldDefinition;
 use Drupal\investigation_documents\InvestigationDocumentsInterface;
 use Drupal\user\EntityOwnerTrait;
 
-use Drupal\Core\File\FileSystemInterface;
-use Drupal\user\UserInterface;
-
 /**
- * Defines the investigationdocuments entity class.
+ * Defines the investigation documents entity class.
  *
  * @ContentEntityType(
  *   id = "investigation_documents",
- *   label = @Translation("InvestigationDocuments"),
- *   label_collection = @Translation("InvestigationDocumentss"),
- *   label_singular = @Translation("investigationdocuments"),
- *   label_plural = @Translation("investigationdocumentss"),
+ *   label = @Translation("Investigation Documents"),
+ *   label_collection = @Translation("Investigation Documentss"),
+ *   label_singular = @Translation("investigation documents"),
+ *   label_plural = @Translation("investigation documentss"),
  *   label_count = @PluralTranslation(
- *     singular = "@count investigationdocumentss",
- *     plural = "@count investigationdocumentss",
+ *     singular = "@count investigation documentss",
+ *     plural = "@count investigation documentss",
  *   ),
  *   handlers = {
  *     "list_builder" = "Drupal\investigation_documents\InvestigationDocumentsListBuilder",
@@ -54,18 +51,17 @@ use Drupal\user\UserInterface;
  *     "owner" = "uid",
  *   },
  *   links = {
- *     "collection" = "/admin/content/investigationdocuments",
- *     "add-form" = "/investigationdocuments/add",
- *     "canonical" = "/investigationdocuments/{investigation_documents}",
- *     "edit-form" = "/investigationdocuments/{investigation_documents}/edit",
- *     "delete-form" = "/investigationdocuments/{investigation_documents}/delete",
- *     "delete-multiple-form" = "/admin/content/investigationdocuments/delete-multiple",
+ *     "collection" = "/admin/content/investigation-documents",
+ *     "add-form" = "/investigation-documents/add",
+ *     "canonical" = "/investigation-documents/{investigation_documents}",
+ *     "edit-form" = "/investigation-documents/{investigation_documents}/edit",
+ *     "delete-form" = "/investigation-documents/{investigation_documents}/delete",
+ *     "delete-multiple-form" = "/admin/content/investigation-documents/delete-multiple",
  *   },
  *   field_ui_base_route = "entity.investigation_documents.settings",
  * )
  */
-
- final class InvestigationDocuments extends ContentEntityBase implements InvestigationDocumentsInterface {
+final class InvestigationDocuments extends ContentEntityBase implements InvestigationDocumentsInterface {
 
   use EntityChangedTrait;
   use EntityOwnerTrait;

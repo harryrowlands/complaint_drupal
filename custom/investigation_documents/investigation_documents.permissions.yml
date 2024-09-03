@@ -1,11 +1,11 @@
 administer investigation_documents:
-  title: 'Administer investigationdocumentss'
+  title: 'Administer investigation documentss'
   restrict access: true
 view investigation_documents:
-  title: 'View investigationdocuments'
+  title: 'View investigation documents'
 edit investigation_documents:
-  title: 'Edit investigationdocuments'
+  title: 'Edit investigation documents'
 delete investigation_documents:
-  title: 'Delete investigationdocuments'
+  title: 'Delete investigation documents'
 create investigation_documents:
-  title: 'Create investigationdocuments'
+  title: 'Create investigation documents'
