@@ -110,7 +110,7 @@ public function setInvestigationId(int $investigationId): self {
   return $this;
 }
 
-public function isVisible(): bool {
+public function getVisible(): bool {
   return (bool) $this->get('visible')->value;
 }
 
