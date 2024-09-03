@@ -114,7 +114,8 @@ final class GetReportBuilderResource extends ResourceBase {
         $report_builder['revisionId'] = $unformattedReport->getRevisionId();
         $report_builder['uid'] = $unformattedReport->getUid();
         $report_builder['jsonString'] = $unformattedReport->getJsonString();
-        $report_builder['revisionCreationTime'] = $unformattedReport->getRevisionCreationTime();
+        $report_builder['createdTime'] = $unformattedReport->getCreatedTime();
+        $report_builder['updatedTime'] = $unformattedReport->getUpdatedTime();
         $report_builder['revisionStatus'] = $unformattedReport->getRevisionStatus();
 
         $reportList[] = $report_builder;

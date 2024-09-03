@@ -366,7 +366,12 @@ final class ReportBuilder extends RevisionableContentEntityBase implements Repor
    */
   public function getCreatedTime()
   {
-    return $this->get('created')->value;
+    $timestamp = $this->get('created')->value;
+    $date_formatter = \Drupal::service('date.formatter');
+
+    // format the timestamp to a  date/time
+    $formatted_date = $date_formatter->format($timestamp);
+    return $formatted_date;
   }
 
   /**
@@ -376,5 +381,15 @@ final class ReportBuilder extends RevisionableContentEntityBase implements Repor
   {
     $this->set('created', $timestamp);
     return $this;
+  }
+
+  public function getUpdatedTime()
+  {
+    $timestamp = $this->get('changed')->value;
+    $date_formatter = \Drupal::service('date.formatter');
+
+    // format the timestamp to a  date/time
+    $formatted_date = $date_formatter->format($timestamp);
+    return $formatted_date;
   }
 }

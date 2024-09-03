@@ -127,6 +127,7 @@ final class CreateReportBuilderResource extends ResourceBase {
         'entityId' =>$report->id(),
         'reportLabel' =>$report->label(),
         'investigationId' =>$data['investigation_id'],
+        'investigationLabel' => $investigation->getName(),
         'steps'=> $newInvestigationData['steps'],
       ];
       $reportJsonString = json_encode($jsonstring);
