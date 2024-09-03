@@ -13,21 +13,19 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Route;
-
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 use Drupal\Core\Session\AccountProxyInterface;
 use Drupal\investigation_documents\Entity\InvestigationDocuments;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-
 /**
- * Represents Get Investigation Document List records as resources.
+ * Represents Delete Investigation Document records as resources.
  *
  * @RestResource (
- *   id = "get_investigation_document_list_resource",
- *   label = @Translation("Get Investigation Document List"),
+ *   id = "delete_investigation_document",
+ *   label = @Translation("Delete Investigation Document"),
  *   uri_paths = {
- *     "canonical" = "/rest/investigation/document/get/{investigationId}",
- *     "create" = "/rest/investigation/document/get/"
+ *     "canonical" = "/api/delete-investigation-document/{fileId}",
+ *     "patch" = "/api/delete-investigation-document/{fileId}"
  *   }
  * )
  *
@@ -53,17 +51,12 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
  * Drupal core.
  * @see \Drupal\rest\Plugin\rest\resource\EntityResource
  */
-final class GetInvestigationDocumentListResource extends ResourceBase {
+final class DeleteInvestigationDocument extends ResourceBase {
 
   /**
    * The key-value storage.
    */
   private readonly KeyValueStoreInterface $storage;
-
-  /**
-   * The current user.
-   */
-  private AccountProxyInterface $currentUser;
 
   /**
    * {@inheritdoc}
@@ -79,9 +72,9 @@ final class GetInvestigationDocumentListResource extends ResourceBase {
     EntityTypeManagerInterface $entityTypeManager
   ) {
     parent::__construct($configuration, $plugin_id, $plugin_definition, $serializer_formats, $logger);
-    $this->storage = $keyValueFactory->get('get_investigation_document_resource');
+    $this->storage = $keyValueFactory->get('delete_investigation_document');
     $this->currentUser = $currentUser;
-     $this->entityTypeManager = $entityTypeManager;
+    $this->entityTypeManager = $entityTypeManager;
   }
 
   /**
@@ -100,53 +93,32 @@ final class GetInvestigationDocumentListResource extends ResourceBase {
     );
   }
 
+ 
+
   /**
-   * Responds to GET requests.
+   * Responds to PATCH requests.
    */
-  public function get($investigationId): ResourceResponse {
-
+  public function patch($fileId): ModifiedResourceResponse {
     if (!$this->currentUser->hasPermission('access content')) {
-  throw new AccessDeniedHttpException();
-    }
-
-//    $investigationId = 123; // Replace with the actual investigationId you want to filter by.
-
-
-//    $query = \Drupal::entityTypeManager('investigation_douments')
-//      ->condition('status', 1) // 1 indicates published.
-//    ->condition('investigationId', $investigationId)
-//      ->accessCheck(TRUE); // Enable access checks.
-
-    // Create an entity query for the investigation_documents entity.
-    $query = $this->entityTypeManager
-      ->getStorage('investigation_documents') // Get the storage handler.
-      ->getQuery() // Create the query.
-      ->condition('status', 1) // Add condition for published documents.
-      ->condition('investigationId', $investigationId) // Add condition for matching investigationId.
-     ->accessCheck(TRUE); // Enable access checks.
-
-    $investigationDocumentIds = $query->execute();
-    $unformattedInvestigationDocuments = InvestigationDocuments::loadMultiple($investigationDocumentIds);
-        $investigationDocumentList = array();
-
-        foreach ($unformattedInvestigationDocuments as $unformattedInvestigationDocument) {
-          if ($unformattedInvestigationDocument instanceof InvestigationDocuments) {
-            $document['label'] = $unformattedInvestigationDocument->getLabel();
-            $document['entityId'] = $unformattedInvestigationDocument->id();
-            $document['stepId'] = $unformattedInvestigationDocument->getStepId();
-            $document['fileEntityId'] = $unformattedInvestigationDocument->getFileId();
-            $document['isVisible'] = $unformattedInvestigationDocument->getVisible();
-
-            $investigationDocumentList[] = $document;
-            unset($document);
-          }
+      throw new AccessDeniedHttpException();
         }
+        $investigationDocument = InvestigationDocuments::load($fileId);
 
+    if (!$investigationDocument) {
+      throw new NotFoundHttpException();
+    }
+    $label = $investigationDocument -> getLabel();
+    $newLabel = "$label - Archived";
+    $investigationDocument->setLabel($newLabel);
+    $investigationDocument->setVisible(false);
+    $entity=$investigationDocument->save();
 
-        $response = new ResourceResponse($investigationDocumentList);
-        $response->addCacheableDependency($this->currentUser);
-        return $response;
+    $this->logger->notice('The Investigation Document @id has been moved to archived.', ['@id' => $fileId]);
+
+    return new ModifiedResourceResponse($entity, 200);
+
   }
+
 
 
 }
