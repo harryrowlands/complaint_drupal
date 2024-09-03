@@ -18,12 +18,12 @@ use Drupal\user\EntityOwnerTrait;
  * @ContentEntityType(
  *   id = "investigation_documents",
  *   label = @Translation("Investigation Documents"),
- *   label_collection = @Translation("Investigation Documentss"),
+ *   label_collection = @Translation("Investigation Documents"),
  *   label_singular = @Translation("investigation documents"),
- *   label_plural = @Translation("investigation documentss"),
+ *   label_plural = @Translation("investigation documents"),
  *   label_count = @PluralTranslation(
- *     singular = "@count investigation documentss",
- *     plural = "@count investigation documentss",
+ *     singular = "@count investigation documents",
+ *     plural = "@count investigation documents",
  *   ),
  *   handlers = {
  *     "list_builder" = "Drupal\investigation_documents\InvestigationDocumentsListBuilder",
